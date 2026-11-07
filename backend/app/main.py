@@ -63,6 +63,13 @@ def serve_dashboard():
         return FileResponse(index_file)
     return {"message": "AegisTrust API Active. Access /docs for OpenAPI documentation."}
 
+@app.get("/sandbox")
+def serve_sandbox():
+    sandbox_file = os.path.join(static_dir, "sandbox.html")
+    if os.path.exists(sandbox_file):
+        return FileResponse(sandbox_file)
+    return FileResponse(os.path.join(static_dir, "index.html"))
+
 # Initialize engines
 url_analyzer = URLAnalyzer()
 tls_analyzer = TLSAnalyzer()
