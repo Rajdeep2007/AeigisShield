@@ -12,6 +12,8 @@ import uuid
 import copy
 import os
 from typing import Dict, Any
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Auto-load .env configuration if present
 def _load_env():
@@ -32,7 +34,7 @@ def _load_env():
                 pass
 _load_env()
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -121,6 +123,12 @@ tls_analyzer = TLSAnalyzer()
 correlation_engine = CorrelationEngine()
 web3_service = Web3RegistryService()
 
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    svg_icon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#38bdf8"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>'
+    return Response(content=svg_icon, media_type="image/svg+xml")
+
+@app.get("/health")
 @app.get("/api/v1/health")
 def health():
     return {"status": "healthy", "service": "AegisTrust", "version": "1.0.0"}

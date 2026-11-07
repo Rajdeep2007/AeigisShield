@@ -22,6 +22,14 @@ def test_health_endpoint():
     assert res.status_code == 200
     assert res.json()["status"] == "healthy"
 
+    res_root = client.get("/health")
+    assert res_root.status_code == 200
+    assert res_root.json()["status"] == "healthy"
+
+    res_fav = client.get("/favicon.ico")
+    assert res_fav.status_code == 200
+    assert "svg" in res_fav.headers.get("content-type", "")
+
 def test_investigate_url_typosquat():
     res = client.post("/api/v1/investigate/url", json={"url": "https://paypa1-account-update.xyz/login"})
     assert res.status_code == 200

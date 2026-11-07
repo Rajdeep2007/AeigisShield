@@ -8,6 +8,8 @@ Detects cross-domain jumps, URL shortener expansions, and HTTPS-to-HTTP security
 from urllib.parse import urlparse, urljoin
 from typing import List, Tuple
 import requests
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 from app.core.ssrf_guard import SSRFGuard, SSRFViolationError, DNSResolutionError
 from app.models.schemas import RedirectHop, Finding, Severity

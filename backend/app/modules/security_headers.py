@@ -11,6 +11,8 @@ Inspects public HTTP security headers and server disclosures safely without acti
 
 from typing import List, Dict, Any, Tuple
 import requests
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 from app.models.schemas import Finding, Severity
 from app.core.ssrf_guard import SSRFGuard
