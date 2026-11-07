@@ -12,6 +12,26 @@ import uuid
 import copy
 import os
 from typing import Dict, Any
+
+# Auto-load .env configuration if present
+def _load_env():
+    for base in [os.path.dirname(__file__), os.path.join(os.path.dirname(__file__), ".."), os.path.join(os.path.dirname(__file__), "..", "..")]:
+        env_file = os.path.join(base, ".env")
+        if os.path.exists(env_file):
+            try:
+                with open(env_file, "r", encoding="utf-8") as f:
+                    for line in f:
+                        line = line.strip()
+                        if line and not line.startswith("#") and "=" in line:
+                            k, v = line.split("=", 1)
+                            k, v = k.strip(), v.strip().strip('"').strip("'")
+                            if k and not os.environ.get(k):
+                                os.environ[k] = v
+                break
+            except Exception:
+                pass
+_load_env()
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
