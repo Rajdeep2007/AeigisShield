@@ -70,6 +70,31 @@ def serve_sandbox():
         return FileResponse(sandbox_file)
     return FileResponse(os.path.join(static_dir, "index.html"))
 
+@app.get("/findings")
+def serve_findings():
+    f = os.path.join(static_dir, "findings.html")
+    return FileResponse(f) if os.path.exists(f) else FileResponse(os.path.join(static_dir, "index.html"))
+
+@app.get("/redirects")
+def serve_redirects():
+    f = os.path.join(static_dir, "redirects.html")
+    return FileResponse(f) if os.path.exists(f) else FileResponse(os.path.join(static_dir, "index.html"))
+
+@app.get("/tls")
+def serve_tls():
+    f = os.path.join(static_dir, "tls.html")
+    return FileResponse(f) if os.path.exists(f) else FileResponse(os.path.join(static_dir, "index.html"))
+
+@app.get("/graph")
+def serve_graph():
+    f = os.path.join(static_dir, "graph.html")
+    return FileResponse(f) if os.path.exists(f) else FileResponse(os.path.join(static_dir, "index.html"))
+
+@app.get("/web3")
+def serve_web3():
+    f = os.path.join(static_dir, "web3.html")
+    return FileResponse(f) if os.path.exists(f) else FileResponse(os.path.join(static_dir, "index.html"))
+
 # Initialize engines
 url_analyzer = URLAnalyzer()
 tls_analyzer = TLSAnalyzer()

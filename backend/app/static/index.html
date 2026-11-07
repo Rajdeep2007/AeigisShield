@@ -103,27 +103,27 @@
           <span class="ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded bg-noir-750 text-amber-400 border border-amber-500/20">Preset Vectors</span>
         </a>
 
-        <a href="#tab-matrix" onclick="switchBentoTab('tab-matrix')" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-noir-800 text-sm font-medium transition-all">
+        <a href="/findings" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-noir-800 text-sm font-medium transition-all">
           <span class="material-symbols-outlined text-slate-400">shield</span>
           <span>Threat Findings</span>
         </a>
 
-        <a href="#tab-timeline" onclick="switchBentoTab('tab-timeline')" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-noir-800 text-sm font-medium transition-all">
+        <a href="/redirects" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-noir-800 text-sm font-medium transition-all">
           <span class="material-symbols-outlined text-slate-400">alt_route</span>
           <span>Redirect Sandbox</span>
         </a>
 
-        <a href="#tab-tls" onclick="switchBentoTab('tab-tls')" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-noir-800 text-sm font-medium transition-all">
+        <a href="/tls" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-noir-800 text-sm font-medium transition-all">
           <span class="material-symbols-outlined text-slate-400">verified_user</span>
           <span>CA Trust & eMudhra</span>
         </a>
 
-        <a href="#tab-graph" onclick="switchBentoTab('tab-graph')" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-noir-800 text-sm font-medium transition-all">
+        <a href="/graph" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-noir-800 text-sm font-medium transition-all">
           <span class="material-symbols-outlined text-slate-400">hub</span>
           <span>Correlation Graph</span>
         </a>
 
-        <a href="#tab-web3" onclick="switchBentoTab('tab-web3')" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-noir-800 text-sm font-medium transition-all">
+        <a href="/web3" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-noir-800 text-sm font-medium transition-all">
           <span class="material-symbols-outlined text-slate-400">token</span>
           <span>Web3 Provenance</span>
         </a>
@@ -457,38 +457,40 @@
         <!-- C. THE 5 BENTO TABS (Revealed When Investigation Results Exist) -->
         <div id="bento-tabs-container" class="hidden space-y-4">
           
-          <!-- Tab Navigation Buttons -->
-          <div class="flex items-center gap-2 overflow-x-auto pb-2 border-b border-noir-border">
-            <button id="btn-tab-matrix" onclick="switchBentoTab('tab-matrix')" 
-              class="flex items-center gap-2 px-4 py-2 rounded-xl bg-sky-500 text-slate-950 font-bold text-xs whitespace-nowrap shadow-md transition-all">
-              <span class="material-symbols-outlined text-sm">density_medium</span>
-              <span>Findings Matrix</span>
-              <span id="tab-findings-counter" class="ml-1 px-1.5 py-0.2 rounded-full bg-slate-900 text-sky-300 text-[10px]">0</span>
-            </button>
+          <!-- Exact Horizontal Sub-Nav (Matching User Design Reference) with Dedicated Page Links -->
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-noir-border pb-3">
+            <div class="flex items-center gap-2 overflow-x-auto scrollbar-none">
+              <a href="/findings" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-sky-500 text-slate-950 font-bold text-xs whitespace-nowrap shadow-md transition-all">
+                <span class="material-symbols-outlined text-sm font-bold">density_medium</span>
+                <span>Findings Matrix</span>
+                <span id="tab-findings-counter" class="ml-1 px-1.5 py-0.2 rounded-full bg-slate-900 text-sky-300 text-[10px]">3</span>
+              </a>
 
-            <button id="btn-tab-timeline" onclick="switchBentoTab('tab-timeline')" 
-              class="flex items-center gap-2 px-4 py-2 rounded-xl bg-noir-850 hover:bg-noir-800 text-slate-400 hover:text-white font-medium text-xs whitespace-nowrap transition-all">
-              <span class="material-symbols-outlined text-sm">alt_route</span>
-              <span>Redirect Timeline</span>
-            </button>
+              <a href="/redirects" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-noir-850 hover:bg-noir-800 text-slate-400 hover:text-white font-medium text-xs whitespace-nowrap border border-noir-border transition-all">
+                <span class="material-symbols-outlined text-sm">alt_route</span>
+                <span>Redirect Timeline</span>
+              </a>
 
-            <button id="btn-tab-tls" onclick="switchBentoTab('tab-tls')" 
-              class="flex items-center gap-2 px-4 py-2 rounded-xl bg-noir-850 hover:bg-noir-800 text-slate-400 hover:text-white font-medium text-xs whitespace-nowrap transition-all">
-              <span class="material-symbols-outlined text-sm">verified_user</span>
-              <span>TLS & CA Inspector</span>
-            </button>
+              <a href="/tls" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-noir-850 hover:bg-noir-800 text-slate-400 hover:text-white font-medium text-xs whitespace-nowrap border border-noir-border transition-all">
+                <span class="material-symbols-outlined text-sm">verified_user</span>
+                <span>TLS & CA Inspector</span>
+              </a>
 
-            <button id="btn-tab-graph" onclick="switchBentoTab('tab-graph')" 
-              class="flex items-center gap-2 px-4 py-2 rounded-xl bg-noir-850 hover:bg-noir-800 text-slate-400 hover:text-white font-medium text-xs whitespace-nowrap transition-all">
-              <span class="material-symbols-outlined text-sm">hub</span>
-              <span>Correlation Graph</span>
-            </button>
+              <a href="/graph" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-noir-850 hover:bg-noir-800 text-slate-400 hover:text-white font-medium text-xs whitespace-nowrap border border-noir-border transition-all">
+                <span class="material-symbols-outlined text-sm">hub</span>
+                <span>Correlation Graph</span>
+              </a>
 
-            <button id="btn-tab-web3" onclick="switchBentoTab('tab-web3')" 
-              class="flex items-center gap-2 px-4 py-2 rounded-xl bg-noir-850 hover:bg-noir-800 text-slate-400 hover:text-white font-medium text-xs whitespace-nowrap transition-all">
-              <span class="material-symbols-outlined text-sm">token</span>
-              <span>Web3 Provenance</span>
-            </button>
+              <a href="/web3" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-noir-850 hover:bg-noir-800 text-slate-400 hover:text-white font-medium text-xs whitespace-nowrap border border-noir-border transition-all">
+                <span class="material-symbols-outlined text-sm">token</span>
+                <span>Web3 Provenance</span>
+              </a>
+            </div>
+
+            <div class="text-xs font-mono text-slate-400 hidden sm:flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-sm text-sky-400">open_in_new</span>
+              <span>Each analysis has a dedicated full-screen page</span>
+            </div>
           </div>
 
           <!-- TAB 1: FINDINGS MATRIX -->
@@ -984,6 +986,11 @@
 
     // Apply Live Data to UI
     function applyDataToUI(data) {
+      // Persist active report across all dedicated pages
+      try {
+        localStorage.setItem('aegis_current_report', JSON.stringify(data));
+        localStorage.setItem('aegis_current_target', data.target);
+      } catch(e) {}
       // Hide Standby Card, Show Live Verdict & Bento Tabs
       document.getElementById('standby-card').classList.add('hidden');
       document.getElementById('live-verdict-card').classList.remove('hidden');
@@ -1131,6 +1138,10 @@
       };
 
       currentReport = mockData;
+      try {
+        localStorage.setItem('aegis_current_report', JSON.stringify(mockData));
+        localStorage.setItem('aegis_current_target', mockData.target);
+      } catch(e) {}
       applyDataToUI(mockData);
     }
 
