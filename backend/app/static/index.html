@@ -50,10 +50,20 @@
         </div>
       </div>
 
-      <div class="flex items-center space-x-4">
+      <div class="flex items-center space-x-3">
+        <!-- Mode Switcher: Live Production vs Evaluation Sandbox -->
+        <div class="flex items-center bg-cyber-950 p-1 rounded-xl border border-cyber-800 text-xs">
+          <button id="btn-mode-live" onclick="setConsoleMode('live')" class="px-3 py-1 rounded-lg font-semibold bg-sky-500 text-white shadow-sm transition">
+            🛡️ Live SOC Console
+          </button>
+          <button id="btn-mode-demo" onclick="setConsoleMode('demo')" class="px-3 py-1 rounded-lg font-medium text-slate-400 hover:text-slate-200 transition">
+            ⚡ Evaluation Sandbox
+          </button>
+        </div>
+
         <div class="flex items-center space-x-2 text-xs bg-cyber-850 px-3 py-1.5 rounded-lg border border-cyber-700/60">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span class="text-slate-300">Hardened SSRF Gateway Active</span>
+          <span class="text-slate-300">FastAPI Backend: Connected</span>
         </div>
         <div class="flex items-center space-x-2 text-xs bg-cyber-850 px-3 py-1.5 rounded-lg border border-cyber-700/60">
           <i data-lucide="blocks" class="w-3.5 h-3.5 text-indigo-400"></i>
@@ -66,14 +76,14 @@
   <!-- Main Container -->
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-    <!-- Quick Demo Preset Bar -->
-    <div class="mb-8 p-4 rounded-xl bg-cyber-900 border border-cyber-800 cyber-glow">
+    <!-- Quick Demo Preset Bar (Hidden by default in Live SOC Mode, visible in Evaluation Mode) -->
+    <div id="demo-preset-panel" class="mb-8 p-4 rounded-xl bg-cyber-900 border border-cyber-800 cyber-glow hidden transition-all duration-300">
       <div class="flex items-center justify-between mb-3">
         <div class="flex items-center space-x-2">
           <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i>
-          <span class="text-xs font-semibold uppercase tracking-wider text-slate-300">Judge Demonstration Presets (1-Click Evaluation)</span>
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-300">Guided Rubric Test Scenarios (1-Click Evaluation)</span>
         </div>
-        <span class="text-xs text-slate-500">Loads real test vectors covering the full rubric</span>
+        <span class="text-xs text-slate-500">Injects verified real-world test vectors into live pipeline</span>
       </div>
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
         <button onclick="loadPreset('typosquat')" class="text-left p-2 rounded-lg bg-cyber-850 hover:bg-cyber-800 border border-cyber-700/60 text-xs transition">
@@ -319,6 +329,25 @@
 
   <script>
     let currentReport = null;
+    let consoleMode = 'live'; // 'live' or 'demo'
+
+    function setConsoleMode(mode) {
+      consoleMode = mode;
+      const btnLive = document.getElementById('btn-mode-live');
+      const btnDemo = document.getElementById('btn-mode-demo');
+      const demoPanel = document.getElementById('demo-preset-panel');
+
+      if (mode === 'live') {
+        btnLive.className = 'px-3 py-1 rounded-lg font-semibold bg-sky-500 text-white shadow-sm transition';
+        btnDemo.className = 'px-3 py-1 rounded-lg font-medium text-slate-400 hover:text-slate-200 transition';
+        demoPanel.classList.add('hidden');
+      } else {
+        btnDemo.className = 'px-3 py-1 rounded-lg font-semibold bg-amber-500 text-slate-950 shadow-sm transition';
+        btnLive.className = 'px-3 py-1 rounded-lg font-medium text-slate-400 hover:text-slate-200 transition';
+        demoPanel.classList.remove('hidden');
+      }
+      lucide.createIcons();
+    }
 
     // Presets handler for 1-click demos
     function loadPreset(type) {
