@@ -1,0 +1,16 @@
+# AegisTrust: AI + Cybersecurity + Web3 Evidence Platform
+# Python 3.10+ Dependencies
+
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+pydantic>=2.7.0
+cryptography>=42.0.0
+pycryptodome>=3.20.0
+requests>=2.31.0
+tldextract>=5.1.0
+networkx>=3.2.0
+google-genai>=0.1.1
+
+# Development & Testing
+pytest>=8.1.0
+httpx>=0.27.0

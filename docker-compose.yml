@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  aegis-trust:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aegistrust-platform
+    ports:
+      - "8000:8000"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - WEB3_RPC_URL=${WEB3_RPC_URL:-https://rpc.sepolia.org}
+      - REPORT_REGISTRY_CONTRACT_ADDRESS=${REPORT_REGISTRY_CONTRACT_ADDRESS:-0x3A52c8087C174825965476a2638e469279A823B0}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3

@@ -1,0 +1,507 @@
+{
+  "version": "1.0.0",
+  "projectName": "AegisTrust",
+  "description": "AI + Cybersecurity + Web3 Evidence-Grounded Threat Investigation Platform",
+  "rootPath": "C:\\Users\\Animesh\\.gemini\\antigravity\\scratch\\aegis-trust",
+  "lastAnalyzedAt": "2026-11-07T19:28:43Z",
+  "summary": {
+    "totalNodes": 26,
+    "totalEdges": 29,
+    "categories": {
+      "code": 14,
+      "config": 2,
+      "document": 2,
+      "service": 1,
+      "endpoint": 4,
+      "tests": 2
+    }
+  },
+  "nodes": [
+    {
+      "id": "document:README.md",
+      "name": "README.md",
+      "type": "document",
+      "summary": "Master documentation for AegisTrust: Intelligent Digital Security & Web3 Verification Platform.",
+      "path": "README.md",
+      "tags": [
+        "documentation",
+        "architecture",
+        "hackathon"
+      ]
+    },
+    {
+      "id": "document:architecture_spec.md",
+      "name": "architecture_spec.md",
+      "type": "document",
+      "summary": "Complete engineering specification detailing SSRF guards, scoring math, RFC 8785 canonical hashing, and smart contract registry.",
+      "path": "architecture_spec.md",
+      "tags": [
+        "specification",
+        "security",
+        "rfc8785"
+      ]
+    },
+    {
+      "id": "service:Dockerfile",
+      "name": "Dockerfile",
+      "type": "service",
+      "summary": "Multi-stage production container build for FastAPI backend with non-root security context.",
+      "path": "Dockerfile",
+      "tags": [
+        "docker",
+        "container",
+        "deployment"
+      ]
+    },
+    {
+      "id": "config:docker-compose.yml",
+      "name": "docker-compose.yml",
+      "type": "config",
+      "summary": "Multi-container orchestration definition with health checks and port forwarding.",
+      "path": "docker-compose.yml",
+      "tags": [
+        "docker-compose",
+        "devops"
+      ]
+    },
+    {
+      "id": "config:requirements.txt",
+      "name": "requirements.txt",
+      "type": "config",
+      "summary": "Python dependencies: FastAPI, Uvicorn, Cryptography, Pydantic, NetworkX, Google GenAI, Pytest.",
+      "path": "requirements.txt",
+      "tags": [
+        "dependencies",
+        "python"
+      ]
+    },
+    {
+      "id": "file:contracts/ReportRegistry.sol",
+      "name": "ReportRegistry.sol",
+      "type": "file",
+      "summary": "Solidity 0.8.20 smart contract for recording immutable threat report Keccak-256 hashes on Ethereum/Sepolia.",
+      "path": "contracts/ReportRegistry.sol",
+      "tags": [
+        "solidity",
+        "web3",
+        "smart-contract",
+        "sepolia"
+      ]
+    },
+    {
+      "id": "file:backend/app/main.py",
+      "name": "main.py",
+      "type": "file",
+      "summary": "FastAPI entry point serving REST endpoints (/investigate/url, /investigate/message, /web3/submit, /web3/verify) and static dashboards.",
+      "path": "backend/app/main.py",
+      "tags": [
+        "fastapi",
+        "entrypoint",
+        "rest-api"
+      ]
+    },
+    {
+      "id": "endpoint:backend/app/main.py:investigate_url",
+      "name": "POST /api/v1/investigate/url",
+      "type": "endpoint",
+      "summary": "Full cyber threat pipeline: Lexical -> Redirect Hops -> TLS -> Headers -> Scoring -> Gemini Synthesis -> Canonical Hash.",
+      "path": "backend/app/main.py",
+      "tags": [
+        "api",
+        "url-analysis"
+      ]
+    },
+    {
+      "id": "endpoint:backend/app/main.py:investigate_message",
+      "name": "POST /api/v1/investigate/message",
+      "type": "endpoint",
+      "summary": "Analyzes SMS/email content for urgency hooks, UPI/phishing links, and prompt injection attempts.",
+      "path": "backend/app/main.py",
+      "tags": [
+        "api",
+        "scam-detection"
+      ]
+    },
+    {
+      "id": "endpoint:backend/app/main.py:serve_dashboard",
+      "name": "GET /",
+      "type": "endpoint",
+      "summary": "Serves the Live Production SOC Console dashboard (clean, without demo presets).",
+      "path": "backend/app/main.py",
+      "tags": [
+        "frontend",
+        "soc-console"
+      ]
+    },
+    {
+      "id": "endpoint:backend/app/main.py:serve_sandbox",
+      "name": "GET /sandbox",
+      "type": "endpoint",
+      "summary": "Serves the Evaluation & Tamper Sandbox dashboard (with 6 judge benchmark presets and live tamper test).",
+      "path": "backend/app/main.py",
+      "tags": [
+        "frontend",
+        "sandbox"
+      ]
+    },
+    {
+      "id": "class:backend/app/core/ssrf_guard.py:SSRFGuard",
+      "name": "SSRFGuard",
+      "type": "class",
+      "summary": "Pre-resolves DNS and enforces zero-trust private CIDR blocking (RFC 1918, RFC 3927, RFC 6598) and port whitelisting (80, 443, 8080, 8443).",
+      "path": "backend/app/core/ssrf_guard.py",
+      "tags": [
+        "security",
+        "ssrf-guard",
+        "dns"
+      ]
+    },
+    {
+      "id": "function:backend/app/core/canonical_hasher.py:compute_report_hash",
+      "name": "compute_report_hash",
+      "type": "function",
+      "summary": "RFC 8785 deterministic canonical JSON serializer and Ethereum Keccak-256 hasher for immutable on-chain commitment.",
+      "path": "backend/app/core/canonical_hasher.py",
+      "tags": [
+        "cryptography",
+        "keccak256",
+        "rfc8785"
+      ]
+    },
+    {
+      "id": "class:backend/app/modules/url_analyzer.py:URLAnalyzer",
+      "name": "URLAnalyzer",
+      "type": "class",
+      "summary": "Performs tokenized Levenshtein distance typosquatting, homoglyph confusable matching, and brand-in-subdomain detection.",
+      "path": "backend/app/modules/url_analyzer.py",
+      "tags": [
+        "typosquatting",
+        "homoglyphs",
+        "lexical-analysis"
+      ]
+    },
+    {
+      "id": "class:backend/app/modules/redirect_tracer.py:RedirectTracer",
+      "name": "RedirectTracer",
+      "type": "class",
+      "summary": "Sandboxed step-by-step HTTP redirect tracer validating per-hop SSRF safety, loop detection, and HTTPS downgrade alerts.",
+      "path": "backend/app/modules/redirect_tracer.py",
+      "tags": [
+        "redirect-tracer",
+        "sandboxing",
+        "network"
+      ]
+    },
+    {
+      "id": "class:backend/app/modules/tls_analyzer.py:TLSAnalyzer",
+      "name": "TLSAnalyzer",
+      "type": "class",
+      "summary": "TLS certificate inspector verifying SANs, expiry, key size, and cross-referencing distrusted CAs including eMudhra (Bugzilla #1898124).",
+      "path": "backend/app/modules/tls_analyzer.py",
+      "tags": [
+        "tls",
+        "certificates",
+        "emudhra",
+        "ca-trust"
+      ]
+    },
+    {
+      "id": "class:backend/app/modules/security_headers.py:SecurityHeadersAnalyzer",
+      "name": "SecurityHeadersAnalyzer",
+      "type": "class",
+      "summary": "Passive security posture analyzer auditing HSTS, Content-Security-Policy, and X-Frame-Options.",
+      "path": "backend/app/modules/security_headers.py",
+      "tags": [
+        "security-headers",
+        "hsts",
+        "csp"
+      ]
+    },
+    {
+      "id": "class:backend/app/modules/message_analyzer.py:MessageAnalyzer",
+      "name": "MessageAnalyzer",
+      "type": "class",
+      "summary": "Regex extraction for URLs, emails, phone numbers, and UPI handles; prompt injection sanitizer; verbatim quote validator.",
+      "path": "backend/app/modules/message_analyzer.py",
+      "tags": [
+        "nlp",
+        "scam-detection",
+        "prompt-injection"
+      ]
+    },
+    {
+      "id": "class:backend/app/modules/correlation_engine.py:CorrelationEngine",
+      "name": "CorrelationEngine",
+      "type": "class",
+      "summary": "NetworkX bipartite graph engine linking domains, IPs, cert fingerprints, and payment UPI handles into threat clusters.",
+      "path": "backend/app/modules/correlation_engine.py",
+      "tags": [
+        "graph",
+        "networkx",
+        "threat-intelligence"
+      ]
+    },
+    {
+      "id": "class:backend/app/services/scoring_engine.py:ScoringEngine",
+      "name": "ScoringEngine",
+      "type": "class",
+      "summary": "Deterministic mathematical risk scoring engine with category caps, negative weights for benign brands, and strict invariants.",
+      "path": "backend/app/services/scoring_engine.py",
+      "tags": [
+        "scoring",
+        "deterministic-rules",
+        "math"
+      ]
+    },
+    {
+      "id": "class:backend/app/services/explainer_service.py:ExplainerService",
+      "name": "ExplainerService",
+      "type": "class",
+      "summary": "Hybrid explanation synthesizer using Google Gemini 2.5 Flash with zero-latency deterministic offline fallback.",
+      "path": "backend/app/services/explainer_service.py",
+      "tags": [
+        "ai",
+        "gemini",
+        "explainability"
+      ]
+    },
+    {
+      "id": "class:backend/app/services/web3_service.py:Web3RegistryService",
+      "name": "Web3RegistryService",
+      "type": "class",
+      "summary": "Web3 service providing on-chain report registration, verification, and interactive 1-byte tamper detection simulation.",
+      "path": "backend/app/services/web3_service.py",
+      "tags": [
+        "web3",
+        "tamper-proof",
+        "ethereum"
+      ]
+    },
+    {
+      "id": "file:backend/app/static/index.html",
+      "name": "index.html (Live SOC Console)",
+      "type": "file",
+      "summary": "Production SOC Console implemented with Google Stitch Cyber Noir Bento design tokens, live API connection, and zero demo tags.",
+      "path": "backend/app/static/index.html",
+      "tags": [
+        "frontend",
+        "stitch",
+        "tailwind",
+        "live-soc"
+      ]
+    },
+    {
+      "id": "file:backend/app/static/sandbox.html",
+      "name": "sandbox.html (Evaluation Sandbox)",
+      "type": "file",
+      "summary": "Evaluation sandbox with 6 deterministic judge demo presets and live Web3 cryptographic tamper verification suite.",
+      "path": "backend/app/static/sandbox.html",
+      "tags": [
+        "frontend",
+        "sandbox",
+        "judge-demo",
+        "web3-tamper"
+      ]
+    },
+    {
+      "id": "file:backend/tests/test_aegis_core.py",
+      "name": "test_aegis_core.py",
+      "type": "file",
+      "summary": "Unit tests for SSRF guard, lexical analyzer, prompt injection sanitizer, scoring math, canonical hashing, and Web3 tamper check.",
+      "path": "backend/tests/test_aegis_core.py",
+      "tags": [
+        "tests",
+        "pytest",
+        "unit-tests"
+      ]
+    },
+    {
+      "id": "file:backend/tests/test_api_endpoints.py",
+      "name": "test_api_endpoints.py",
+      "type": "file",
+      "summary": "Integration tests for FastAPI endpoints: health, investigate URL (malicious & benign), scam messages, correlation, and Web3 submission.",
+      "path": "backend/tests/test_api_endpoints.py",
+      "tags": [
+        "tests",
+        "pytest",
+        "integration-tests"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:backend/app/main.py",
+      "target": "endpoint:backend/app/main.py:investigate_url",
+      "type": "routes",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/main.py",
+      "target": "endpoint:backend/app/main.py:investigate_message",
+      "type": "routes",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/main.py",
+      "target": "endpoint:backend/app/main.py:serve_dashboard",
+      "type": "serves",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/main.py",
+      "target": "endpoint:backend/app/main.py:serve_sandbox",
+      "type": "serves",
+      "weight": 0.8
+    },
+    {
+      "source": "endpoint:backend/app/main.py:investigate_url",
+      "target": "class:backend/app/modules/url_analyzer.py:URLAnalyzer",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "endpoint:backend/app/main.py:investigate_url",
+      "target": "class:backend/app/modules/redirect_tracer.py:RedirectTracer",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "endpoint:backend/app/main.py:investigate_url",
+      "target": "class:backend/app/modules/tls_analyzer.py:TLSAnalyzer",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "endpoint:backend/app/main.py:investigate_url",
+      "target": "class:backend/app/modules/security_headers.py:SecurityHeadersAnalyzer",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "endpoint:backend/app/main.py:investigate_url",
+      "target": "class:backend/app/services/scoring_engine.py:ScoringEngine",
+      "type": "calls",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:backend/app/main.py:investigate_url",
+      "target": "class:backend/app/services/explainer_service.py:ExplainerService",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "endpoint:backend/app/main.py:investigate_url",
+      "target": "class:backend/app/modules/correlation_engine.py:CorrelationEngine",
+      "type": "calls",
+      "weight": 0.7
+    },
+    {
+      "source": "endpoint:backend/app/main.py:investigate_url",
+      "target": "function:backend/app/core/canonical_hasher.py:compute_report_hash",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "endpoint:backend/app/main.py:investigate_message",
+      "target": "class:backend/app/modules/message_analyzer.py:MessageAnalyzer",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "endpoint:backend/app/main.py:investigate_message",
+      "target": "class:backend/app/services/scoring_engine.py:ScoringEngine",
+      "type": "calls",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:backend/app/main.py:investigate_message",
+      "target": "class:backend/app/services/explainer_service.py:ExplainerService",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "class:backend/app/modules/redirect_tracer.py:RedirectTracer",
+      "target": "class:backend/app/core/ssrf_guard.py:SSRFGuard",
+      "type": "validates",
+      "weight": 0.9
+    },
+    {
+      "source": "class:backend/app/modules/tls_analyzer.py:TLSAnalyzer",
+      "target": "class:backend/app/core/ssrf_guard.py:SSRFGuard",
+      "type": "validates",
+      "weight": 0.9
+    },
+    {
+      "source": "class:backend/app/modules/security_headers.py:SecurityHeadersAnalyzer",
+      "target": "class:backend/app/core/ssrf_guard.py:SSRFGuard",
+      "type": "validates",
+      "weight": 0.9
+    },
+    {
+      "source": "class:backend/app/services/web3_service.py:Web3RegistryService",
+      "target": "file:contracts/ReportRegistry.sol",
+      "type": "implements",
+      "weight": 0.9
+    },
+    {
+      "source": "class:backend/app/services/web3_service.py:Web3RegistryService",
+      "target": "function:backend/app/core/canonical_hasher.py:compute_report_hash",
+      "type": "calls",
+      "weight": 0.8
+    },
+    {
+      "source": "endpoint:backend/app/main.py:serve_dashboard",
+      "target": "file:backend/app/static/index.html",
+      "type": "serves",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:backend/app/main.py:serve_sandbox",
+      "target": "file:backend/app/static/sandbox.html",
+      "type": "serves",
+      "weight": 0.9
+    },
+    {
+      "source": "file:backend/tests/test_aegis_core.py",
+      "target": "class:backend/app/core/ssrf_guard.py:SSRFGuard",
+      "type": "tested_by",
+      "weight": 0.9
+    },
+    {
+      "source": "file:backend/tests/test_aegis_core.py",
+      "target": "class:backend/app/modules/url_analyzer.py:URLAnalyzer",
+      "type": "tested_by",
+      "weight": 0.9
+    },
+    {
+      "source": "file:backend/tests/test_aegis_core.py",
+      "target": "class:backend/app/modules/message_analyzer.py:MessageAnalyzer",
+      "type": "tested_by",
+      "weight": 0.9
+    },
+    {
+      "source": "file:backend/tests/test_aegis_core.py",
+      "target": "class:backend/app/services/scoring_engine.py:ScoringEngine",
+      "type": "tested_by",
+      "weight": 0.9
+    },
+    {
+      "source": "file:backend/tests/test_aegis_core.py",
+      "target": "function:backend/app/core/canonical_hasher.py:compute_report_hash",
+      "type": "tested_by",
+      "weight": 0.9
+    },
+    {
+      "source": "file:backend/tests/test_aegis_core.py",
+      "target": "class:backend/app/services/web3_service.py:Web3RegistryService",
+      "type": "tested_by",
+      "weight": 0.9
+    },
+    {
+      "source": "file:backend/tests/test_api_endpoints.py",
+      "target": "file:backend/app/main.py",
+      "type": "tested_by",
+      "weight": 0.9
+    }
+  ]
+}
