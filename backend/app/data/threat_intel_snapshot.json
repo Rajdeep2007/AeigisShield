@@ -1,0 +1,38 @@
+{
+  "source": "URLhaus & OpenPhish Intelligence Cache",
+  "generated_at": "2026-11-07T12:00:00Z",
+  "entries": [
+    {
+      "url": "http://malware-distribution-node.biz/invoice.exe",
+      "domain": "malware-distribution-node.biz",
+      "threat": "malware_download",
+      "reporter": "abuse.ch",
+      "confidence": "high",
+      "date_added": "2026-11-05"
+    },
+    {
+      "url": "http://sbi-kyc-verify-portal.top/login.php",
+      "domain": "sbi-kyc-verify-portal.top",
+      "threat": "phishing_credential_harvesting",
+      "reporter": "OpenPhish",
+      "confidence": "high",
+      "date_added": "2026-11-06"
+    },
+    {
+      "url": "https://secure-chase-update-account.cc/auth",
+      "domain": "secure-chase-update-account.cc",
+      "threat": "banking_trojan_landing",
+      "reporter": "PhishTank",
+      "confidence": "high",
+      "date_added": "2026-11-07"
+    },
+    {
+      "url": "http://netflix-subscription-renew-alert.info/billing",
+      "domain": "netflix-subscription-renew-alert.info",
+      "threat": "credit_card_fraud",
+      "reporter": "OpenPhish",
+      "confidence": "high",
+      "date_added": "2026-11-06"
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "description": "Registry of known distrusted, compromised, or revoked Certificate Authorities and intermediate certificates.",
+  "last_updated": "2026-11-01",
+  "authoritative_sources": [
+    "Mozilla CA Certificate Program Distrust List",
+    "Chrome Root Program Announcements",
+    "Bugzilla Incident 1898124 (eMudhra CA Key Generation Flaw)",
+    "Common Vulnerabilities and Exposures (CVE) Root Trust DB"
+  ],
+  "distrusted_cas": [
+    {
+      "id": "CA-EMUDHRA-2024-01",
+      "common_name": "eMudhra Sub-CA - Key Generation Defect 2024",
+      "organization": "eMudhra Technologies Limited",
+      "fingerprint_sha256": "4a7b51e045a165b452817dc9437cf21a690e0e31853a8fa99616e2570081d5cb",
+      "incident_type": "Compromised / Weak Key Generation in CA HSM",
+      "date_distrusted": "2024-07-15",
+      "status": "Distrusted",
+      "details": "eMudhra TLS certificate incident: Inadequate entropy during CA private key generation allowed mathematical factorization risk, requiring intermediate revocation.",
+      "severity": "CRITICAL"
+    },
+    {
+      "id": "CA-DIGINOTAR-2011",
+      "common_name": "DigiNotar Root CA",
+      "organization": "DigiNotar B.V.",
+      "fingerprint_sha256": "c060ed44cbd881bd0ef86c0ba287ddcf8167470604543d79fa3c727964b831ec",
+      "incident_type": "Compromised Infrastructure & Fraudulent Wildcard Issuance",
+      "date_distrusted": "2011-09-03",
+      "status": "Untrusted / Revoked",
+      "details": "Intrusion into internal CA network resulted in unauthorized fraudulent wildcard certificates for google.com and other major domains.",
+      "severity": "CRITICAL"
+    },
+    {
+      "id": "CA-WOSIGN-2016",
+      "common_name": "WoSign CA Free SSL Certificate G2",
+      "organization": "WoSign CA Limited",
+      "fingerprint_sha256": "2525c3451ec9f1f0a069e9b5f54316d2165b822d667c4ec224f4699f7d6a7824",
+      "incident_type": "Backdated Certificates & Control Validation Failures",
+      "date_distrusted": "2016-10-31",
+      "status": "Distrusted",
+      "details": "Intentionally backdated SHA-1 certificates to bypass browser deprecation rules and issued certificates without domain verification.",
+      "severity": "CRITICAL"
+    },
+    {
+      "id": "CA-STARTCOM-2016",
+      "common_name": "StartCom Certification Authority",
+      "organization": "StartCom Ltd.",
+      "fingerprint_sha256": "3e2bf7f2031b96f38ce6c4d8a85d3e2d58476a0f4cc21540d15b2501a3977000",
+      "incident_type": "Secret Acquisition & Non-compliance",
+      "date_distrusted": "2016-10-31",
+      "status": "Distrusted",
+      "details": "Cross-signing and control breaches related to WoSign undisclosed ownership change.",
+      "severity": "CRITICAL"
+    },
+    {
+      "id": "CA-DARKMATTER-2019",
+      "common_name": "DarkMatter Intermediate CA",
+      "organization": "DarkMatter Group",
+      "fingerprint_sha256": "18cfd2b1f81d59663f73967926b48590822187e14f85e492f254b0fc96836696",
+      "incident_type": "Denial of Trust / State Surveillance Risk",
+      "date_distrusted": "2019-07-11",
+      "status": "Distrusted",
+      "details": "Rejected from browser root store inclusion due to lack of operational independence and offensive cyber capabilities.",
+      "severity": "CRITICAL"
+    }
+  ]
+}

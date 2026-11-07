@@ -1,0 +1,33 @@
+{
+  "brands": [
+    { "name": "PayPal", "domain": "paypal.com", "keywords": ["paypal", "paypalsecure", "paypal-login"] },
+    { "name": "Google", "domain": "google.com", "keywords": ["google", "gmail", "google-accounts"] },
+    { "name": "Microsoft", "domain": "microsoft.com", "keywords": ["microsoft", "office365", "live", "outlook"] },
+    { "name": "Apple", "domain": "apple.com", "keywords": ["apple", "icloud", "appleid"] },
+    { "name": "State Bank of India", "domain": "onlinesbi.sbi", "keywords": ["sbi", "onlinesbi", "statebankofindia"] },
+    { "name": "HDFC Bank", "domain": "hdfcbank.com", "keywords": ["hdfc", "hdfcbank", "netbanking-hdfc"] },
+    { "name": "ICICI Bank", "domain": "icicibank.com", "keywords": ["icici", "icicibank"] },
+    { "name": "JPMorgan Chase", "domain": "chase.com", "keywords": ["chase", "jpmorgan", "chasebank"] },
+    { "name": "Bank of America", "domain": "bankofamerica.com", "keywords": ["bankofamerica", "bofa"] },
+    { "name": "Wells Fargo", "domain": "wellsfargo.com", "keywords": ["wellsfargo"] },
+    { "name": "Amazon", "domain": "amazon.com", "keywords": ["amazon", "amazonpay", "aws"] },
+    { "name": "Netflix", "domain": "netflix.com", "keywords": ["netflix"] },
+    { "name": "Facebook", "domain": "facebook.com", "keywords": ["facebook", "meta", "fb"] },
+    { "name": "Instagram", "domain": "instagram.com", "keywords": ["instagram"] },
+    { "name": "WhatsApp", "domain": "whatsapp.com", "keywords": ["whatsapp"] },
+    { "name": "Telegram", "domain": "telegram.org", "keywords": ["telegram"] },
+    { "name": "GitHub", "domain": "github.com", "keywords": ["github"] },
+    { "name": "Coinbase", "domain": "coinbase.com", "keywords": ["coinbase"] },
+    { "name": "Binance", "domain": "binance.com", "keywords": ["binance"] },
+    { "name": "DHL Express", "domain": "dhl.com", "keywords": ["dhl", "dhl-tracking"] },
+    { "name": "FedEx", "domain": "fedex.com", "keywords": ["fedex", "fedextracking"] },
+    { "name": "India Post", "domain": "indiapost.gov.in", "keywords": ["indiapost", "postofficeservice"] },
+    { "name": "Income Tax Department", "domain": "incometax.gov.in", "keywords": ["incometax", "incometaxindia", "efiling"] },
+    { "name": "UIDAI Aadhaar", "domain": "uidai.gov.in", "keywords": ["uidai", "myaadhaar", "aadhaar"] },
+    { "name": "Harvard University", "domain": "harvard.edu", "keywords": ["harvard"] },
+    { "name": "MIT", "domain": "mit.edu", "keywords": ["mit.edu"] },
+    { "name": "Stanford University", "domain": "stanford.edu", "keywords": ["stanford"] },
+    { "name": "Internal Revenue Service", "domain": "irs.gov", "keywords": ["irs", "irs-tax"] },
+    { "name": "Gov.UK", "domain": "gov.uk", "keywords": ["gov.uk", "hmrc"] }
+  ]
+}
