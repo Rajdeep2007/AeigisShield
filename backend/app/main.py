@@ -117,12 +117,14 @@ def serve_sandbox():
 
 
 @app.get("/findings")
+@app.get("/intel")
 def serve_findings():
     f = os.path.join(static_dir, "findings.html")
     return FileResponse(f) if os.path.exists(f) else FileResponse(os.path.join(static_dir, "index.html"))
 
 
 @app.get("/redirects")
+@app.get("/url-analysis")
 def serve_redirects():
     f = os.path.join(static_dir, "redirects.html")
     return FileResponse(f) if os.path.exists(f) else FileResponse(os.path.join(static_dir, "index.html"))
