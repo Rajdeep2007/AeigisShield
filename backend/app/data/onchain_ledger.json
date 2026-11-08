@@ -1,0 +1,57 @@
+{
+  "tx_counter": 1004,
+  "block_counter": 458923,
+  "entries": [
+    {
+      "report_id": 1,
+      "submission_id": "test1234",
+      "report_hash": "0x75d9a8608b48ca26b474f1d7382986438af0df1117e69454f37f1450849ddecd",
+      "canonical_hash": "0x75d9a8608b48ca26b474f1d7382986438af0df1117e69454f37f1450849ddecd",
+      "indicator_hash": "0x10a4f52e856ac52bf321e035461ae783667b083f7350491b8e7d1330cb0ad20a",
+      "risk_score": 85,
+      "risk_classification": "High Risk",
+      "tx_hash": "0x93b71bc80b8d0617e7ee32f2b857d11d0754b879422a5e5cfbc3d4f9cdb73c4c",
+      "block_number": 458921,
+      "timestamp": 1794125597,
+      "status": "Submitted",
+      "validations_count": 1,
+      "disputes_count": 0,
+      "supersedes": 0,
+      "contract_address": "0x3A52c5Fbe160D5d78E1097eAbf1f83c6b24523B0"
+    },
+    {
+      "report_id": 2,
+      "submission_id": "aa0f2297",
+      "report_hash": "0x6d69757a7135d546872bbe1b37c333b90a98d6babed553e1fb3f607505c8cb85",
+      "canonical_hash": "0x6d69757a7135d546872bbe1b37c333b90a98d6babed553e1fb3f607505c8cb85",
+      "indicator_hash": "0xe4ab109e9f4c65df0a8443ae2ac29badfe476cdfac416c8879b4df00e9efbdbb",
+      "risk_score": 75,
+      "risk_classification": "High Risk",
+      "tx_hash": "0xe8724fefe954bb4e509621d243baf30ea4285e885c552956f171eedeb5813595",
+      "block_number": 458922,
+      "timestamp": 1794125609,
+      "status": "Validated",
+      "validations_count": 2,
+      "disputes_count": 0,
+      "supersedes": 0,
+      "contract_address": "0x3A52c5Fbe160D5d78E1097eAbf1f83c6b24523B0"
+    },
+    {
+      "report_id": 3,
+      "submission_id": "772a6597",
+      "report_hash": "0xef2956a8d13c4d83d5d1b713fdbf8e59f47b3c6bef1ed156c5f8b85156ca2dbf",
+      "canonical_hash": "0xef2956a8d13c4d83d5d1b713fdbf8e59f47b3c6bef1ed156c5f8b85156ca2dbf",
+      "indicator_hash": "0xe4ab109e9f4c65df0a8443ae2ac29badfe476cdfac416c8879b4df00e9efbdbb",
+      "risk_score": 75,
+      "risk_classification": "High Risk",
+      "tx_hash": "0xea6139a0d61ff31267339a785c79e3eb111dc5e6c959f28b5f7c689c8541e03b",
+      "block_number": 458923,
+      "timestamp": 1794125725,
+      "status": "Validated",
+      "validations_count": 2,
+      "disputes_count": 0,
+      "supersedes": 0,
+      "contract_address": "0x3A52c5Fbe160D5d78E1097eAbf1f83c6b24523B0"
+    }
+  ]
+}

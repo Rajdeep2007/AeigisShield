@@ -4,15 +4,15 @@ Provides REST APIs for:
 - URL and website threat investigation
 - Message and scam social engineering analysis
 - Threat correlation graph queries
-- Web3 cryptographic registration and independent verification
+- Web3 cryptographic registration, validation, dispute tracking, and independent verification
 """
 
 import time
 import uuid
-import copy
 import os
-from typing import Dict, Any
 import urllib3
+from typing import List, Dict, Any
+
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Auto-load .env configuration if present
@@ -34,6 +34,12 @@ def _load_env():
                 pass
 _load_env()
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -44,8 +50,11 @@ from app.models.schemas import (
     InvestigationResponse,
     Web3SubmitRequest,
     Web3VerifyRequest,
+    Web3DisputeRequest,
+    Web3ValidateRequest,
     Web3VerificationResponse,
-    Finding
+    Finding,
+    Severity,
 )
 from app.modules.url_analyzer import URLAnalyzer
 from app.modules.redirect_tracer import RedirectTracer
@@ -56,7 +65,11 @@ from app.modules.correlation_engine import CorrelationEngine
 from app.services.scoring_engine import ScoringEngine
 from app.services.explainer_service import ExplainerService
 from app.services.web3_service import Web3RegistryService
-from app.core.canonical_hasher import compute_report_hash, compute_indicator_hash
+from app.core.canonical_hasher import (
+    compute_report_hash,
+    compute_indicator_hash,
+    build_canonical_report_payload,
+)
 
 app = FastAPI(
     title="AegisTrust Security Intelligence API",
@@ -64,7 +77,7 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Enable CORS for Next.js frontend
+# Enable CORS for Next.js / browser clients
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -78,12 +91,14 @@ static_dir = os.path.join(os.path.dirname(__file__), "static")
 if os.path.exists(static_dir):
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
+
 @app.get("/")
 def serve_dashboard():
     index_file = os.path.join(static_dir, "index.html")
     if os.path.exists(index_file):
         return FileResponse(index_file)
     return {"message": "AegisTrust API Active. Access /docs for OpenAPI documentation."}
+
 
 @app.get("/sandbox")
 def serve_sandbox():
@@ -92,30 +107,42 @@ def serve_sandbox():
         return FileResponse(sandbox_file)
     return FileResponse(os.path.join(static_dir, "index.html"))
 
+
 @app.get("/findings")
 def serve_findings():
     f = os.path.join(static_dir, "findings.html")
     return FileResponse(f) if os.path.exists(f) else FileResponse(os.path.join(static_dir, "index.html"))
+
 
 @app.get("/redirects")
 def serve_redirects():
     f = os.path.join(static_dir, "redirects.html")
     return FileResponse(f) if os.path.exists(f) else FileResponse(os.path.join(static_dir, "index.html"))
 
+
 @app.get("/tls")
 def serve_tls():
     f = os.path.join(static_dir, "tls.html")
     return FileResponse(f) if os.path.exists(f) else FileResponse(os.path.join(static_dir, "index.html"))
+
 
 @app.get("/graph")
 def serve_graph():
     f = os.path.join(static_dir, "graph.html")
     return FileResponse(f) if os.path.exists(f) else FileResponse(os.path.join(static_dir, "index.html"))
 
+
 @app.get("/web3")
 def serve_web3():
     f = os.path.join(static_dir, "web3.html")
     return FileResponse(f) if os.path.exists(f) else FileResponse(os.path.join(static_dir, "index.html"))
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    svg_icon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#38bdf8"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>'
+    return Response(content=svg_icon, media_type="image/svg+xml")
+
 
 # Initialize engines
 url_analyzer = URLAnalyzer()
@@ -123,24 +150,28 @@ tls_analyzer = TLSAnalyzer()
 correlation_engine = CorrelationEngine()
 web3_service = Web3RegistryService()
 
-@app.get("/favicon.ico", include_in_schema=False)
-def favicon():
-    svg_icon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#38bdf8"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>'
-    return Response(content=svg_icon, media_type="image/svg+xml")
 
 @app.get("/health")
 @app.get("/api/v1/health")
 def health():
     return {"status": "healthy", "service": "AegisTrust", "version": "1.0.0"}
 
+
 @app.get("/api/v1/distrusted-cas")
 def get_distrusted_cas():
     return {"distrusted_cas": tls_analyzer.distrusted_cas}
+
+
+@app.get("/api/v1/intel-feeds")
+def get_intel_feeds():
+    return {"entries": url_analyzer.intel_snapshot}
+
 
 @app.get("/api/v1/correlations/{domain}")
 def get_correlations(domain: str):
     cluster = correlation_engine.find_cluster(domain)
     return cluster
+
 
 @app.post("/api/v1/investigate/url", response_model=InvestigationResponse)
 def investigate_url(req: InvestigationRequest):
@@ -148,68 +179,117 @@ def investigate_url(req: InvestigationRequest):
         raise HTTPException(status_code=400, detail="URL parameter is required")
 
     submission_id = str(uuid.uuid4())[:8]
-    all_findings: list[Finding] = []
+    all_findings: List[Finding] = []
+    limitations: List[str] = []
+    checks_status: Dict[str, str] = {}
 
     # 1. URL & Lexical Analysis
     lex_findings, meta = url_analyzer.analyze(req.url)
     all_findings.extend(lex_findings)
+    checks_status["lexical_analysis"] = "completed"
+    checks_status["threat_intel_lookup"] = "completed"
 
     # 2. Safe Redirect Chain Tracer
     redirect_hops, redirect_findings = RedirectTracer.trace(meta["normalized_url"])
     all_findings.extend(redirect_findings)
 
+    has_nxdomain = any(f.id == "F-DNS-NXDOMAIN" for f in redirect_findings)
+    has_ssrf_block = any(f.id == "F-REDIRECT-SSRF-BLOCKED" for f in redirect_findings)
+
+    if redirect_hops and redirect_hops[-1].status_code > 0:
+        checks_status["dns_resolution"] = "completed"
+        checks_status["redirect_trace"] = "completed"
+    elif has_nxdomain:
+        checks_status["dns_resolution"] = "completed (NXDOMAIN)"
+        checks_status["redirect_trace"] = "unavailable (domain offline/unregistered)"
+        limitations.append("Live HTTP redirect trace could not complete because the domain did not resolve in public DNS.")
+    elif has_ssrf_block:
+        checks_status["dns_resolution"] = "blocked (SSRF Guard)"
+        checks_status["redirect_trace"] = "blocked (SSRF Guard)"
+        limitations.append("Active connection blocked by SSRF Guard due to restricted/internal IP target.")
+    else:
+        checks_status["dns_resolution"] = "completed"
+        checks_status["redirect_trace"] = "partial (connection timeout)"
+        limitations.append("Redirect chain could only be partially probed due to remote endpoint timeout.")
+
     # 3. TLS Certificate Analysis
     tls_report, tls_findings = tls_analyzer.analyze(meta["normalized_url"])
     all_findings.extend(tls_findings)
+    checks_status["tls_inspection"] = "completed" if tls_report else "unavailable"
+    if not tls_report:
+        limitations.append("TLS handshake could not be established (host may be non-TLS, unresolvable, or blocking handshakes).")
 
     # 4. Passive Security Headers Audit
     headers_dict, header_findings = SecurityHeadersAnalyzer.inspect(meta["normalized_url"])
     all_findings.extend(header_findings)
+    checks_status["security_headers"] = "completed" if headers_dict else "unavailable"
+    if not headers_dict:
+        limitations.append("Passive security header audit was limited because the endpoint did not return standard HTTP response headers.")
 
-    # 5. Deterministic Risk Scoring
+    # 5. Infrastructure Correlation in NetworkX Graph
+    resolved_ip = redirect_hops[0].resolved_ip if redirect_hops else None
+    cert_fp = tls_report.fingerprint_sha256 if tls_report else None
+    domain_name = meta.get("domain", meta.get("hostname", ""))
+    if domain_name:
+        correlation_engine.add_incident(
+            domain=domain_name,
+            ip=resolved_ip,
+            cert_fp=cert_fp
+        )
+        cluster_info = correlation_engine.find_cluster(domain_name)
+        if cluster_info["cluster_size"] > 1:
+            linked_peers = ", ".join(cluster_info["correlated_domains"][:3])
+            all_findings.append(Finding(
+                id="F-CORRELATION-CLUSTER",
+                module="intel",
+                title="Correlated Multi-Domain Fraud Infrastructure Detected",
+                severity=Severity.HIGH,
+                weight=25,
+                evidence=(
+                    f"Domain shares infrastructure (IP: {resolved_ip or 'Cluster'}, "
+                    f"Cert: {cert_fp[:8] if cert_fp else 'Shared'}) with known campaigns: {linked_peers}."
+                ),
+                source="AegisTrust:NetworkXCorrelationEngine",
+                remediation="High risk of coordinated malicious campaign. Treat associated hostnames with suspicion."
+            ))
+    checks_status["campaign_correlation"] = "completed"
+
+    # 6. Deterministic Risk Scoring
+    completed_checks_count = sum(1 for v in checks_status.values() if "completed" in v)
     score, classification, coverage = ScoringEngine.calculate_score(
         all_findings,
-        checks_completed=7 if tls_report else 5,
+        checks_completed=max(completed_checks_count, 5),
         total_checks=8
     )
 
-    # 6. AI Explainability Synthesis
+    # 7. Explainability
     explanation = ExplainerService.generate_explanation(
-        target=meta["registered_domain"],
+        target=meta["hostname"],
         classification=classification,
         score=score,
         findings=all_findings,
         coverage_percent=coverage
     )
 
-    # 7. Add to Correlation Graph
-    resolved_ip = redirect_hops[0].resolved_ip if redirect_hops else None
-    cert_fp = tls_report.fingerprint_sha256 if tls_report else None
-    correlation_engine.add_incident(
-        domain=meta["registered_domain"],
-        ip=resolved_ip,
-        cert_fp=cert_fp
-    )
-
     # 8. Cryptographic Commitments
-    clean_payload = {
+    timestamp_str = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    temp_payload = {
         "submission_id": submission_id,
-        "target": meta["registered_domain"],
+        "target": meta["hostname"],
         "target_type": "url",
-        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "timestamp": timestamp_str,
         "risk_classification": classification.value,
         "risk_score": score,
-        "findings_count": len(all_findings),
-        "primary_threat": all_findings[0].title if all_findings else "None"
+        "findings": all_findings,
     }
-    report_hash = compute_report_hash(clean_payload)
-    indicator_hash = compute_indicator_hash(meta["registered_domain"])
+    report_hash = compute_report_hash(temp_payload)
+    indicator_hash = compute_indicator_hash(meta["hostname"])
 
     return InvestigationResponse(
         submission_id=submission_id,
-        target=meta["registered_domain"],
+        target=meta["hostname"],
         target_type="url",
-        timestamp=clean_payload["timestamp"],
+        timestamp=timestamp_str,
         risk_classification=classification,
         risk_score=score,
         evidence_coverage_percent=coverage,
@@ -218,11 +298,15 @@ def investigate_url(req: InvestigationRequest):
         redirect_chain=redirect_hops,
         tls_details=tls_report,
         passive_headers=headers_dict,
-        correlation_cluster_id=meta["registered_domain"],
+        message_analysis=None,
+        correlation_cluster_id=domain_name or meta["hostname"],
+        limitations=limitations,
+        checks_status=checks_status,
         report_hash_keccak256=report_hash,
         salted_indicator_hash=indicator_hash,
         onchain_registry_status="Unregistered"
     )
+
 
 @app.post("/api/v1/investigate/message", response_model=InvestigationResponse)
 def investigate_message(req: InvestigationRequest):
@@ -230,35 +314,99 @@ def investigate_message(req: InvestigationRequest):
         raise HTTPException(status_code=400, detail="Message content is required")
 
     submission_id = str(uuid.uuid4())[:8]
-    all_findings: list[Finding] = []
+    all_findings: List[Finding] = []
+    limitations: List[str] = []
+    checks_status: Dict[str, str] = {}
 
-    # 1. Message & Social Engineering Analysis
+    # 1. Social Engineering & Linguistic Heuristics
     message_analysis, scam_findings = MessageAnalyzer.analyze(req.message)
     all_findings.extend(scam_findings)
+    checks_status["linguistic_heuristics"] = "completed"
+    checks_status["prompt_injection_defense"] = "completed"
+    checks_status["entity_extraction"] = "completed"
 
-    # 2. If URLs exist inside message, also run deep URL investigation
     redirect_hops = []
     tls_report = None
     headers_dict = {}
+    primary_domain = None
+    extracted_upis = [ind.value for ind in message_analysis.extracted_indicators if ind.indicator_type == "upi_vpa"]
 
+    # 2. Deep investigation of embedded URLs
     if message_analysis.extracted_urls:
         first_url = message_analysis.extracted_urls[0]
         url_findings, meta = url_analyzer.analyze(first_url)
-        all_findings.extend(url_findings)
-        redirect_hops, r_findings = RedirectTracer.trace(meta["normalized_url"])
-        all_findings.extend(r_findings)
-        tls_report, t_findings = tls_analyzer.analyze(meta["normalized_url"])
-        all_findings.extend(t_findings)
+        primary_domain = meta.get("domain", meta.get("hostname"))
 
-    # 3. Deterministic Risk Scoring
+        # Safe trace
+        hops, red_findings = RedirectTracer.trace(meta["normalized_url"])
+        redirect_hops = hops
+        url_findings.extend(red_findings)
+
+        # TLS Analysis
+        tls_rep, t_findings = tls_analyzer.analyze(meta["normalized_url"])
+        tls_report = tls_rep
+        url_findings.extend(t_findings)
+
+        # Security Headers
+        h_dict, h_findings = SecurityHeadersAnalyzer.inspect(meta["normalized_url"])
+        headers_dict = h_dict
+        url_findings.extend(h_findings)
+
+        existing_ids = {f.id for f in all_findings}
+        for uf in url_findings:
+            if uf.id not in existing_ids:
+                all_findings.append(uf)
+
+        checks_status["embedded_url_lexical"] = "completed"
+        checks_status["embedded_url_tls"] = "completed" if tls_report else "unavailable"
+        checks_status["embedded_url_headers"] = "completed" if headers_dict else "unavailable"
+    else:
+        limitations.append("No embedded URLs found in message; network/TLS/header checks not applicable.")
+
+    # 3. Correlate indicators in NetworkX Graph
+    if primary_domain:
+        resolved_ip = redirect_hops[0].resolved_ip if redirect_hops else None
+        cert_fp = tls_report.fingerprint_sha256 if tls_report else None
+        correlation_engine.add_incident(
+            domain=primary_domain,
+            ip=resolved_ip,
+            cert_fp=cert_fp,
+            upi=extracted_upis[0] if extracted_upis else None
+        )
+        cluster_info = correlation_engine.find_cluster(primary_domain)
+        if cluster_info["cluster_size"] > 1:
+            linked_peers = ", ".join(cluster_info["correlated_domains"][:3])
+            all_findings.append(Finding(
+                id="F-CORRELATION-CLUSTER",
+                module="intel",
+                title="Message Linked to Correlated Fraud Campaign Cluster",
+                severity=Severity.HIGH,
+                weight=25,
+                evidence=(
+                    f"Extracted indicators ({primary_domain}"
+                    f"{', ' + extracted_upis[0] if extracted_upis else ''}) connect to "
+                    f"active phishing cluster involving: {linked_peers}."
+                ),
+                source="AegisTrust:NetworkXCorrelationEngine",
+                remediation="Do not interact with link or transfer funds; part of a coordinated scam campaign."
+            ))
+    checks_status["campaign_correlation"] = "completed"
+
+    limitations.append(
+        "Linguistic urgency alone is never treated as proof of fraud without corroborating technical or behavioral indicators."
+    )
+
+    # 4. Deterministic Risk Scoring
     score, classification, coverage = ScoringEngine.calculate_score(
         all_findings,
         checks_completed=7 if message_analysis.extracted_urls else 6,
         total_checks=8
     )
 
-    # 4. Explainability
-    target_name = message_analysis.extracted_urls[0] if message_analysis.extracted_urls else "Pasted Message Content"
+    # 5. Explainability
+    target_name = primary_domain or (
+        message_analysis.extracted_urls[0] if message_analysis.extracted_urls else "Pasted Message Content"
+    )
     explanation = ExplainerService.generate_explanation(
         target=target_name,
         classification=classification,
@@ -267,25 +415,25 @@ def investigate_message(req: InvestigationRequest):
         coverage_percent=coverage
     )
 
-    # 5. Cryptographic Commitments
-    clean_payload = {
+    # 6. Cryptographic Commitments
+    timestamp_str = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    temp_payload = {
         "submission_id": submission_id,
         "target": target_name,
         "target_type": "message",
-        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "timestamp": timestamp_str,
         "risk_classification": classification.value,
         "risk_score": score,
-        "findings_count": len(all_findings),
-        "primary_threat": all_findings[0].title if all_findings else "None"
+        "findings": all_findings,
     }
-    report_hash = compute_report_hash(clean_payload)
+    report_hash = compute_report_hash(temp_payload)
     indicator_hash = compute_indicator_hash(target_name)
 
     return InvestigationResponse(
         submission_id=submission_id,
         target=target_name,
         target_type="message",
-        timestamp=clean_payload["timestamp"],
+        timestamp=timestamp_str,
         risk_classification=classification,
         risk_score=score,
         evidence_coverage_percent=coverage,
@@ -295,20 +443,41 @@ def investigate_message(req: InvestigationRequest):
         tls_details=tls_report,
         passive_headers=headers_dict,
         message_analysis=message_analysis,
+        correlation_cluster_id=primary_domain or target_name,
+        limitations=limitations,
+        checks_status=checks_status,
         report_hash_keccak256=report_hash,
         salted_indicator_hash=indicator_hash,
         onchain_registry_status="Unregistered"
     )
 
+
+@app.get("/api/v1/web3/reports")
+def list_web3_reports():
+    return {"reports": web3_service.list_reports(), "contract_address": web3_service.CONTRACT_ADDRESS}
+
+
 @app.post("/api/v1/web3/submit")
 def submit_to_web3(req: Web3SubmitRequest):
-    receipt = web3_service.submit_report(req.report_json)
+    receipt = web3_service.submit_report(req.report_json, supersedes_id=req.supersedes_id)
     return receipt
+
 
 @app.post("/api/v1/web3/verify", response_model=Web3VerificationResponse)
 def verify_web3_report(req: Web3VerifyRequest):
     res = web3_service.verify_report(req.report_json, simulate_tamper=req.simulate_tamper)
     return res
+
+
+@app.post("/api/v1/web3/validate")
+def validate_web3_report(req: Web3ValidateRequest):
+    return web3_service.validate_report(req.report_hash)
+
+
+@app.post("/api/v1/web3/dispute")
+def dispute_web3_report(req: Web3DisputeRequest):
+    return web3_service.dispute_report(req.report_hash, req.reason)
+
 
 if __name__ == "__main__":
     import uvicorn

@@ -1,15 +1,13 @@
 """
 Module 1b: Safe Redirect Chain Tracer.
 Safely traces HTTP redirect chains step-by-step (max 5 hops) without executing scripts.
-Re-checks SSRF rules on every single hop.
+Re-checks SSRF rules and pins DNS on every single hop.
 Detects cross-domain jumps, URL shortener expansions, and HTTPS-to-HTTP security downgrades.
 """
 
 from urllib.parse import urlparse, urljoin
 from typing import List, Tuple
 import requests
-import urllib3
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 from app.core.ssrf_guard import SSRFGuard, SSRFViolationError, DNSResolutionError
 from app.models.schemas import RedirectHop, Finding, Severity
@@ -17,11 +15,12 @@ from app.models.schemas import RedirectHop, Finding, Severity
 MAX_HOPS = 5
 REQUEST_TIMEOUT = 3.5  # seconds
 
+
 class RedirectTracer:
     @staticmethod
     def trace(initial_url: str) -> Tuple[List[RedirectHop], List[Finding]]:
         """
-        Traces redirect hops safely.
+        Traces redirect hops safely using SSRF-pinned connections.
         Returns: (hops_list, findings_list)
         """
         hops: List[RedirectHop] = []
@@ -35,7 +34,6 @@ class RedirectTracer:
 
         for hop_idx in range(1, MAX_HOPS + 1):
             try:
-                # 1. SSRF Validation before making connection
                 normalized_url, hostname, port, resolved_ip = SSRFGuard.validate_url(current_url)
             except SSRFViolationError as e:
                 findings.append(Finding(
@@ -61,29 +59,28 @@ class RedirectTracer:
                     remediation="Confirm if domain is currently registered and active."
                 ))
                 break
-            except Exception as e:
-                # DNS failure or network timeout on target
+            except Exception:
                 break
 
-            # 2. Perform non-redirecting HEAD or GET request
             try:
-                # Connect with verify=False for passive observation so we can inspect bad SSL
-                response = session.head(
-                    normalized_url,
-                    allow_redirects=False,
+                response, _, _, _ = SSRFGuard.safe_request(
+                    method="HEAD",
+                    url=normalized_url,
                     timeout=REQUEST_TIMEOUT,
-                    verify=False
+                    session=session
                 )
-                if response.status_code in (405, 501):  # Method Not Allowed for HEAD
-                    response = session.get(
-                        normalized_url,
-                        allow_redirects=False,
+                if response.status_code in (405, 501):
+                    response.close()
+                    response, _, _, _ = SSRFGuard.safe_request(
+                        method="GET",
+                        url=normalized_url,
                         timeout=REQUEST_TIMEOUT,
-                        stream=True,
-                        verify=False
+                        session=session
                     )
+                status_code = response.status_code
+                resp_headers = dict(response.headers)
+                response.close()
             except Exception:
-                # Network unreachable, timeout, or SSL handshake abort
                 hops.append(RedirectHop(
                     hop=hop_idx,
                     url=current_url,
@@ -98,22 +95,18 @@ class RedirectTracer:
             hops.append(RedirectHop(
                 hop=hop_idx,
                 url=current_url,
-                status_code=response.status_code,
+                status_code=status_code,
                 resolved_ip=resolved_ip,
                 is_cross_domain=False,
                 is_downgrade=False
             ))
 
-            # Check if this response indicates a redirect
-            if response.status_code in (301, 302, 303, 307, 308) and "Location" in response.headers:
-                next_url = response.headers["Location"]
-                # Resolve relative redirects
-                next_url = urljoin(current_url, next_url)
+            location = resp_headers.get("Location") or resp_headers.get("location")
+            if status_code in (301, 302, 303, 307, 308) and location:
+                next_url = urljoin(current_url, location)
                 next_parsed = urlparse(next_url)
 
-                # Check cross-domain jump
-                is_cross = prev_parsed.hostname != next_parsed.hostname
-                # Check HTTPS -> HTTP downgrade
+                is_cross = (prev_parsed.hostname or "").lower() != (next_parsed.hostname or "").lower()
                 is_downgrade = prev_parsed.scheme == "https" and next_parsed.scheme == "http"
 
                 hops[-1].is_cross_domain = is_cross
@@ -131,7 +124,10 @@ class RedirectTracer:
                         remediation="Severe security risk. Data transmitted over HTTP can be intercepted by network eavesdroppers."
                     ))
 
-                if is_cross and hop_idx == 1 and any(short in prev_parsed.hostname for short in ["bit.ly", "tinyurl", "t.co", "is.gd"]):
+                if is_cross and hop_idx == 1 and any(
+                    short in (prev_parsed.hostname or "")
+                    for short in ["bit.ly", "tinyurl", "t.co", "is.gd", "rb.gy", "cutt.ly"]
+                ):
                     findings.append(Finding(
                         id="F-SHORTENER-EXPANSION",
                         module="lexical",
@@ -145,10 +141,8 @@ class RedirectTracer:
 
                 current_url = next_url
             else:
-                # Reached terminal destination
                 break
 
-        # Check for excessive redirects
         if len(hops) >= 4:
             findings.append(Finding(
                 id="F-EXCESSIVE-REDIRECTS",

@@ -12,13 +12,10 @@ import os
 from typing import List, Optional
 from app.models.schemas import Finding, RiskClassification, Severity
 
-try:
-    from google import genai
-    HAS_GENAI = True
-except ImportError:
-    HAS_GENAI = False
 
 class ExplainerService:
+    _gemini_available = True
+
     @staticmethod
     def generate_explanation(
         target: str,
@@ -34,14 +31,24 @@ class ExplainerService:
         """
         gemini_key = api_key or os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
 
-        if gemini_key and HAS_GENAI:
-            try:
-                return ExplainerService._generate_with_gemini(
-                    target, classification, score, findings, coverage_percent, gemini_key
-                )
-            except Exception:
-                # Fall through to deterministic engine on network or auth failure
-                pass
+        if gemini_key and ExplainerService._gemini_available:
+            import threading
+            res_box = [None]
+
+            def _call_llm():
+                try:
+                    res_box[0] = ExplainerService._generate_with_gemini(
+                        target, classification, score, findings, coverage_percent, gemini_key
+                    )
+                except Exception:
+                    pass
+
+            t = threading.Thread(target=_call_llm, daemon=True)
+            t.start()
+            t.join(timeout=2.5)
+            if res_box[0]:
+                return res_box[0]
+            ExplainerService._gemini_available = False
 
         return ExplainerService._generate_deterministic(
             target, classification, score, findings, coverage_percent
@@ -56,6 +63,7 @@ class ExplainerService:
         coverage_percent: int,
         api_key: str
     ) -> str:
+        from google import genai
         client = genai.Client(api_key=api_key)
 
         findings_summary = []
@@ -101,47 +109,61 @@ Format your response cleanly:
         lines = []
 
         if classification == RiskClassification.CONFIRMED_MALICIOUS:
-            lines.append(f"⚠️ **CONFIRMED SECURITY THREAT**: Target '{target}' matches verified malicious records in authoritative cybersecurity feeds or utilizes a compromised Certificate Authority.")
+            lines.append(
+                f"⚠️ CONFIRMED SECURITY THREAT: Target '{target}' matches verified malicious records in "
+                f"authoritative cybersecurity feeds or utilizes a compromised/distrusted Certificate Authority."
+            )
         elif classification == RiskClassification.HIGH_RISK:
-            lines.append(f"🚨 **HIGH RISK**: Multiple significant threat indicators (Risk Score: {score}/100) were identified for '{target}'. Interaction is strongly discouraged.")
+            lines.append(
+                f"🚨 HIGH RISK: Multiple significant threat indicators (Risk Score: {score}/100) were "
+                f"identified for '{target}'. Interaction is strongly discouraged."
+            )
         elif classification == RiskClassification.SUSPICIOUS:
-            lines.append(f"⚠️ **SUSPICIOUS ACTIVITY**: One or more anomalous indicators were identified for '{target}' (Risk Score: {score}/100). Further verification is recommended.")
+            lines.append(
+                f"⚠️ SUSPICIOUS ACTIVITY: One or more anomalous indicators were identified for '{target}' "
+                f"(Risk Score: {score}/100). Further verification is recommended."
+            )
         elif classification == RiskClassification.LOW_RISK:
-            lines.append(f"🛡️ **LOW RISK ASSESSMENT**: No significant malicious indicators were identified across {coverage_percent}% completed checks. (Notice: 'Low Risk' does not guarantee absolute safety; always exercise prudent security hygiene).")
+            lines.append(
+                f"🛡️ LOW RISK ASSESSMENT: No significant malicious indicators were identified across "
+                f"{coverage_percent}% completed checks. (Notice: 'Low Risk' does not guarantee absolute safety; "
+                f"always exercise prudent security hygiene)."
+            )
         else:
-            lines.append(f"❓ **INCONCLUSIVE**: Insufficient technical telemetry was obtainable for '{target}' to reach a definitive verdict.")
+            lines.append(
+                f"❓ INCONCLUSIVE: Insufficient technical telemetry was obtainable for '{target}' "
+                f"to reach a definitive verdict."
+            )
 
-        # Highlight key findings
         critical_and_high = [f for f in findings if f.severity in (Severity.CRITICAL, Severity.HIGH)]
         medium_and_low = [f for f in findings if f.severity in (Severity.MEDIUM, Severity.LOW)]
         benign_matches = [f for f in findings if f.severity == Severity.BENIGN]
 
         if critical_and_high:
-            lines.append("\n**Primary Threats Detected:**")
+            lines.append("\nPrimary Threats Detected:")
             for f in critical_and_high[:4]:
-                lines.append(f"- **{f.title}**: {f.evidence}")
+                lines.append(f"• {f.title}: {f.evidence}")
 
         if medium_and_low and len(critical_and_high) < 3:
-            lines.append("\n**Secondary Technical Observations:**")
+            lines.append("\nSecondary Technical Observations:")
             for f in medium_and_low[:3]:
-                lines.append(f"- {f.title}: {f.evidence}")
+                lines.append(f"• {f.title}: {f.evidence}")
 
         if benign_matches:
-            lines.append("\n**Trust Indicators:**")
+            lines.append("\nTrust Indicators:")
             for f in benign_matches:
-                lines.append(f"- {f.title}: {f.evidence}")
+                lines.append(f"• {f.title}: {f.evidence}")
 
-        # Actionable recommendations
-        lines.append("\n**Recommended Next Actions:**")
+        lines.append("\nRecommended Next Actions:")
         if classification in (RiskClassification.CONFIRMED_MALICIOUS, RiskClassification.HIGH_RISK):
             lines.append("1. Do not enter credentials, financial information, or passwords.")
             lines.append("2. Avoid downloading files or approving browser notification prompts.")
-            lines.append("3. Report this incident to your IT security department or national cyber portal.")
+            lines.append("3. Anchor and share this incident report to the Web3 threat registry.")
         elif classification == RiskClassification.SUSPICIOUS:
             lines.append("1. Verify the link origin via an independent, established communication channel.")
             lines.append("2. Double-check the exact spelling of the domain name.")
         else:
-            lines.append("1. Standard browsing permitted.")
+            lines.append("1. Standard browsing permitted; verify URL bar before entering sensitive credentials.")
             lines.append("2. Ensure browser and OS security updates remain current.")
 
         return "\n".join(lines)

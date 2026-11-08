@@ -5,48 +5,50 @@ Inspects public HTTP security headers and server disclosures safely without acti
 - Content-Security-Policy (CSP)
 - X-Frame-Options (Clickjacking defense)
 - X-Content-Type-Options (MIME sniffing defense)
+- Referrer-Policy & Permissions-Policy
+- Cookie security flags (Secure, HttpOnly, SameSite)
 - Server & Technology disclosure (X-Powered-By, Server banners)
-- Cookie flags (Secure, HttpOnly, SameSite)
 """
 
 from typing import List, Dict, Any, Tuple
-import requests
-import urllib3
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
 from app.models.schemas import Finding, Severity
 from app.core.ssrf_guard import SSRFGuard
+
 
 class SecurityHeadersAnalyzer:
     @staticmethod
     def inspect(target_url: str) -> Tuple[Dict[str, Any], List[Finding]]:
         """
-        Passively checks HTTP response headers.
+        Passively checks HTTP response headers using SSRF-safe non-redirecting request.
         Returns: (headers_dict, findings_list)
         """
         findings: List[Finding] = []
         parsed_headers: Dict[str, Any] = {}
 
         try:
-            normalized_url, hostname, port, resolved_ip = SSRFGuard.validate_url(target_url)
-        except Exception:
-            return parsed_headers, findings
-
-        try:
-            resp = requests.head(
-                normalized_url,
+            resp, normalized_url, _, _ = SSRFGuard.safe_request(
+                method="HEAD",
+                url=target_url,
                 timeout=3.0,
-                allow_redirects=True,
-                verify=False,
                 headers={"User-Agent": "AegisTrust-Security-Audit/1.0"}
             )
+            if resp.status_code in (405, 501):
+                resp.close()
+                resp, normalized_url, _, _ = SSRFGuard.safe_request(
+                    method="GET",
+                    url=target_url,
+                    timeout=3.0,
+                    headers={"User-Agent": "AegisTrust-Security-Audit/1.0"}
+                )
             raw_headers = {k.lower(): v for k, v in resp.headers.items()}
+            resp.close()
         except Exception:
             return parsed_headers, findings
 
         # 1. Check Strict-Transport-Security (HSTS)
         hsts = raw_headers.get("strict-transport-security")
         parsed_headers["hsts"] = bool(hsts)
+        parsed_headers["hsts_value"] = hsts or "missing"
         if not hsts and normalized_url.startswith("https://"):
             findings.append(Finding(
                 id="F-HDR-MISSING-HSTS",
@@ -77,7 +79,7 @@ class SecurityHeadersAnalyzer:
         # 3. Check X-Frame-Options (Clickjacking)
         x_frame = raw_headers.get("x-frame-options")
         parsed_headers["x_frame_options"] = x_frame or "missing"
-        if not x_frame and not (csp and "frame-ancestors" in csp):
+        if not x_frame and not (csp and "frame-ancestors" in csp.lower()):
             findings.append(Finding(
                 id="F-HDR-CLICKJACKING",
                 module="headers",
@@ -104,7 +106,31 @@ class SecurityHeadersAnalyzer:
                 remediation="Add 'X-Content-Type-Options: nosniff' header."
             ))
 
-        # 5. Check Server / Technology Disclosure
+        # 5. Check Cookie Hygiene (Secure / HttpOnly / SameSite)
+        set_cookie = raw_headers.get("set-cookie")
+        parsed_headers["cookies_inspected"] = bool(set_cookie)
+        if set_cookie:
+            sc_lower = set_cookie.lower()
+            missing_flags = []
+            if normalized_url.startswith("https://") and "secure" not in sc_lower:
+                missing_flags.append("Secure")
+            if "httponly" not in sc_lower:
+                missing_flags.append("HttpOnly")
+            if "samesite" not in sc_lower:
+                missing_flags.append("SameSite")
+            if missing_flags:
+                findings.append(Finding(
+                    id="F-HDR-INSECURE-COOKIE",
+                    module="headers",
+                    title="Session Cookie Missing Hardening Flags",
+                    severity=Severity.LOW,
+                    weight=4,
+                    evidence=f"Response 'Set-Cookie' header omits security attributes: {', '.join(missing_flags)}.",
+                    source="AegisTrust:CookieAuditor",
+                    remediation="Ensure session cookies set 'Secure; HttpOnly; SameSite=Strict/Lax'."
+                ))
+
+        # 6. Check Server / Technology Disclosure
         server = raw_headers.get("server")
         x_powered = raw_headers.get("x-powered-by")
         parsed_headers["server"] = server or "Hidden"
@@ -117,7 +143,7 @@ class SecurityHeadersAnalyzer:
                 title="Technology Stack / Version Information Disclosed",
                 severity=Severity.LOW,
                 weight=3,
-                evidence=f"Server exposes internal stack version banners: Server: '{server}', X-Powered-By: '{x_powered}'.",
+                evidence=f"Server exposes internal stack version banners: Server: '{server or 'N/A'}', X-Powered-By: '{x_powered or 'N/A'}'.",
                 source="AegisTrust:HeaderAuditor",
                 remediation="Suppress or sanitize server version banners to prevent reconnaissance of known CVEs."
             ))
