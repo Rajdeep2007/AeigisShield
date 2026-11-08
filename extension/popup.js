@@ -1,9 +1,10 @@
 /**
- * AegisShield Extension Popup Controller
+ * AegisShield Extension Popup Controller (v2.6)
  */
 
 let currentTabId = null;
 let currentResult = null;
+let currentHostname = "";
 
 function applyVerdictTheme(score, classification) {
   const verdictEl = document.getElementById("tab-verdict");
@@ -27,6 +28,33 @@ function applyVerdictTheme(score, classification) {
     verdictEl.style.border = "1px solid #10b981";
     scoreEl.style.color = "#6ee7b7";
   }
+}
+
+function updateWhitelistButton(isWhitelisted) {
+  const btn = document.getElementById("btn-whitelist");
+  if (!btn) return;
+  if (isWhitelisted) {
+    btn.textContent = "⭐ Domain Trusted (In Whitelist)";
+    btn.classList.add("active");
+  } else {
+    btn.textContent = "⭐ Trust Domain (Add to Whitelist)";
+    btn.classList.remove("active");
+  }
+}
+
+function checkWhitelistStatus(hostname) {
+  if (!hostname) return;
+  chrome.storage.local.get(["user_whitelist"], (res) => {
+    const list = res.user_whitelist || [];
+    const isW = list.includes(hostname.toLowerCase());
+    updateWhitelistButton(isW);
+    if (isW) {
+      document.getElementById("tab-verdict").textContent = "Trusted (Whitelisted)";
+      document.getElementById("tab-verdict").style.background = "rgba(16, 185, 129, 0.2)";
+      document.getElementById("tab-verdict").style.color = "#6ee7b7";
+      document.getElementById("tab-score").textContent = "0/100";
+    }
+  });
 }
 
 function renderResult(result) {
@@ -82,6 +110,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const url = activeTab.url || "";
     document.getElementById("tab-url").textContent = url;
 
+    try {
+      const u = new URL(url);
+      currentHostname = u.hostname;
+      checkWhitelistStatus(currentHostname);
+    } catch (_) {
+      currentHostname = "";
+    }
+
     chrome.storage.local.get([`tab_${currentTabId}`], (stored) => {
       if (stored && stored[`tab_${currentTabId}`]) {
         renderResult(stored[`tab_${currentTabId}`]);
@@ -91,6 +127,31 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("tab-verdict").textContent = "Browser Internal Page";
         document.getElementById("tab-score").textContent = "0/100";
       }
+    });
+  });
+
+  document.getElementById("btn-whitelist").addEventListener("click", () => {
+    if (!currentHostname) return;
+    chrome.storage.local.get(["user_whitelist"], (res) => {
+      let list = res.user_whitelist || [];
+      const lower = currentHostname.toLowerCase();
+      if (list.includes(lower)) {
+        list = list.filter((h) => h !== lower);
+        updateWhitelistButton(false);
+        if (currentResult) renderResult(currentResult);
+      } else {
+        list.push(lower);
+        updateWhitelistButton(true);
+        document.getElementById("tab-verdict").textContent = "Trusted (Whitelisted)";
+        document.getElementById("tab-verdict").style.background = "rgba(16, 185, 129, 0.2)";
+        document.getElementById("tab-verdict").style.color = "#6ee7b7";
+        document.getElementById("tab-score").textContent = "0/100";
+        if (currentTabId) {
+          chrome.action.setBadgeText({ tabId: currentTabId, text: "OK" });
+          chrome.action.setBadgeBackgroundColor({ tabId: currentTabId, color: "#10b981" });
+        }
+      }
+      chrome.storage.local.set({ user_whitelist: list });
     });
   });
 

@@ -53,6 +53,13 @@ MULTI_PART_SLDS = {
 
 REDIRECT_PARAMS = {"url", "redirect", "next", "dest", "target", "r", "to", "link", "goto", "continue"}
 
+COMMON_BENIGN_DICTIONARY_WORDS = {
+    "data", "bank", "news", "mail", "post", "shop", "tech", "test", "demo",
+    "beta", "alpha", "user", "work", "home", "site", "page", "link", "info",
+    "code", "file", "card", "view", "time", "year", "play", "game", "free",
+    "open", "real", "best", "good", "life", "live", "city", "star", "fast"
+}
+
 
 @dataclass
 class _ExtractedDomain:
@@ -252,8 +259,24 @@ class URLAnalyzer:
                         dist = levenshtein_distance(token, target_word)
                         de_leeted = token.translate(LEET_SUBSTITUTIONS).replace("rn", "m")
                         is_leet_match = (de_leeted == target_word and token != target_word)
-                        if is_leet_match or (dist in (1, 2) and abs(len(token) - len(target_word)) <= 2 and len(target_word) >= 4):
-                            effective_dist = 1 if is_leet_match else dist
+                        
+                        is_typo_candidate = False
+                        effective_dist = 1
+
+                        if is_leet_match:
+                            is_typo_candidate = True
+                            effective_dist = 1
+                        elif token.lower() in COMMON_BENIGN_DICTIONARY_WORDS:
+                            # Prevent benign dictionary words (e.g. data, bank, shop) from colliding with short brand tokens
+                            is_typo_candidate = False
+                        elif dist == 1 and len(target_word) >= 5 and abs(len(token) - len(target_word)) <= 1:
+                            is_typo_candidate = True
+                            effective_dist = 1
+                        elif dist == 2 and len(target_word) >= 6 and abs(len(token) - len(target_word)) <= 1:
+                            is_typo_candidate = True
+                            effective_dist = 2
+
+                        if is_typo_candidate:
                             findings.append(Finding(
                                 id="F-TYPOSQUAT",
                                 module="lexical",

@@ -22,6 +22,7 @@ from typing import List, Tuple, Dict, Any, Optional
 import requests
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.asymmetric import rsa, dsa, ec, ed25519, ed448
 
 from app.models.schemas import TLSSecurityReport, Finding, Severity
 from app.core.ssrf_guard import SSRFGuard
@@ -157,7 +158,27 @@ class TLSAnalyzer:
                 break
 
         public_key = cert.public_key()
-        key_size = getattr(public_key, "key_size", 2048)
+        key_type = "RSA"
+        is_weak_key = False
+
+        if isinstance(public_key, (ec.EllipticCurvePublicKey, ed25519.Ed25519PublicKey, ed448.Ed448PublicKey)):
+            key_type = "ECC"
+            key_size = getattr(getattr(public_key, "curve", None), "key_size", getattr(public_key, "key_size", 256))
+            if key_size < 224:
+                is_weak_key = True
+        elif isinstance(public_key, (rsa.RSAPublicKey, dsa.DSAPublicKey)):
+            key_type = "RSA" if isinstance(public_key, rsa.RSAPublicKey) else "DSA"
+            key_size = getattr(public_key, "key_size", 2048)
+            if key_size < 2048:
+                is_weak_key = True
+        else:
+            key_size = getattr(public_key, "key_size", 2048)
+            if hasattr(public_key, "curve"):
+                key_type = "ECC"
+                if key_size < 224:
+                    is_weak_key = True
+            elif key_size < 2048:
+                is_weak_key = True
         sig_algo = cert.signature_hash_algorithm.name.lower() if cert.signature_hash_algorithm else "unknown"
         fingerprint_sha256 = hashlib.sha256(cert_der).hexdigest()
 
@@ -231,14 +252,14 @@ class TLSAnalyzer:
                 remediation="Possible domain impersonation or misconfigured virtual hosting."
             ))
 
-        if key_size < 2048:
+        if is_weak_key:
             findings.append(Finding(
                 id="F-TLS-WEAK-KEY",
                 module="tls",
                 title="Inadequate Cryptographic Key Size",
                 severity=Severity.HIGH,
                 weight=20,
-                evidence=f"Public key size is {key_size} bits, which falls below the modern standard of 2048 bits.",
+                evidence=f"Public key size ({key_type} {key_size} bits) falls below modern cryptographic security standards (RSA 2048+ or ECC 256+).",
                 source="AegisTrust:CryptoAudit",
                 remediation="Upgrade private key to RSA 2048+ or ECC P-256."
             ))

@@ -80,7 +80,7 @@ from app.core.canonical_hasher import (
 app = FastAPI(
     title="AegisTrust Security Intelligence API",
     description="Evidence-grounded cybersecurity analysis, AI scam detection, Autonomous Security Agent, and Web3 verifiable reporting.",
-    version="1.1.0"
+    version="2.6.0"
 )
 
 # Enable CORS for Next.js / browser clients & Chrome/Edge extension
@@ -184,7 +184,7 @@ agent_service = AegisAgentService(
 @app.get("/health")
 @app.get("/api/v1/health")
 def health():
-    return {"status": "healthy", "service": "AegisTrust", "version": "1.1.0"}
+    return {"status": "healthy", "service": "AegisTrust", "version": "2.6.0"}
 
 
 @app.get("/api/v1/distrusted-cas")

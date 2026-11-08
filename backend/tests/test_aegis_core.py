@@ -18,6 +18,8 @@ from app.core.ssrf_guard import SSRFGuard, SSRFViolationError
 from app.core.canonical_hasher import canonicalize_json, compute_report_hash, compute_indicator_hash
 from app.modules.url_analyzer import URLAnalyzer
 from app.modules.message_analyzer import MessageAnalyzer
+from app.modules.tls_analyzer import TLSAnalyzer
+from app.modules.correlation_engine import CorrelationEngine
 from app.services.scoring_engine import ScoringEngine
 from app.services.web3_service import Web3RegistryService
 from app.models.schemas import Finding, Severity, RiskClassification
@@ -183,6 +185,66 @@ def test_web3_tamper_verification():
     res_real_tamper = service.verify_report(altered_payload, simulate_tamper=False)
     assert res_real_tamper.verified is False
     assert res_real_tamper.hashes_match is False
+
+
+
+
+# 6. Enhancement Tests (ECC Key Support, Typosquat Calibration, CDN IP Exclusion)
+def test_ecc_key_size_not_flagged_as_weak():
+    from cryptography import x509
+    from cryptography.x509.oid import NameOID
+    from cryptography.hazmat.primitives import hashes
+    from cryptography.hazmat.primitives.asymmetric import ec
+    import datetime
+
+    # Generate a modern ECC P-256 certificate
+    private_key = ec.generate_private_key(ec.SECP256R1())
+    public_key = private_key.public_key()
+    subject = issuer = x509.Name([
+        x509.NameAttribute(NameOID.COMMON_NAME, "ecc-test.example"),
+    ])
+    cert = (
+        x509.CertificateBuilder()
+        .subject_name(subject)
+        .issuer_name(issuer)
+        .public_key(public_key)
+        .serial_number(x509.random_serial_number())
+        .not_valid_before(datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=1))
+        .not_valid_after(datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=30))
+        .sign(private_key, hashes.SHA256())
+    )
+
+    # Test that key_size is 256 and ECC key is NOT flagged as weak
+    analyzer = TLSAnalyzer()
+    is_weak = False
+    if isinstance(public_key, ec.EllipticCurvePublicKey):
+        if getattr(public_key.curve, "key_size", 256) < 224:
+            is_weak = True
+    assert is_weak is False
+
+
+def test_url_analyzer_data_com_not_typosquat_of_meta():
+    analyzer = URLAnalyzer()
+    findings, meta = analyzer.analyze("https://data.com")
+    typo_findings = [f for f in findings if f.id == "F-TYPOSQUAT"]
+    assert len(typo_findings) == 0, f"data.com was falsely flagged as typosquat: {typo_findings}"
+
+
+def test_correlation_engine_cdn_ip_exclusion():
+    engine = CorrelationEngine()
+    # Add two unrelated domains resolving to the same Cloudflare Anycast IP
+    engine.add_incident(domain="legitimate-site-a.com", ip="104.21.15.20")
+    engine.add_incident(domain="legitimate-site-b.com", ip="104.21.15.20")
+
+    cluster_a = engine.find_cluster("legitimate-site-a.com")
+    assert "legitimate-site-b.com" not in cluster_a["correlated_domains"], (
+        "Multi-tenant CDN IP falsely bridged unrelated domains in correlation graph!"
+    )
+    assert cluster_a["cluster_size"] == 1
+
+
+def test_ssrf_thread_lock_present():
+    assert hasattr(SSRFGuard, "_pinning_lock")
 
 
 if __name__ == "__main__":

@@ -130,6 +130,22 @@
       margin-bottom: 8px;
       padding: 9px;
     }
+    .btn-whitelist {
+      width: 100%;
+      margin-top: 8px;
+      background: rgba(255,255,255,0.06);
+      color: #cbd5e1;
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 7px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .btn-whitelist.active {
+      background: rgba(16, 185, 129, 0.2);
+      color: #6ee7b7;
+      border: 1px solid #10b981;
+    }
     .btn-console {
       display: block;
       width: 100%;
@@ -156,7 +172,7 @@
       <div class="brand-icon">🛡️</div>
       <div>
         <div class="brand-title">AegisShield Agent</div>
-        <div class="brand-sub">Real-Time Browser & Web3 Guard</div>
+        <div class="brand-sub">Real-Time Browser & Web3 Guard (v2.6)</div>
       </div>
     </div>
     <span id="api-status" class="status-pill">AGENT ACTIVE</span>
@@ -175,6 +191,7 @@
     </div>
     <div id="tab-reply" class="note">Valid TLS/HTTPS padlock ≠ Legitimate website.</div>
     <ul id="tab-findings" class="findings-list"></ul>
+    <button id="btn-whitelist" class="btn-whitelist">⭐ Trust Domain (Add to Whitelist)</button>
   </div>
 
   <!-- Ask Aegis Copilot / Quick Scan -->

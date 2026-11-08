@@ -1,6 +1,7 @@
 /**
- * AegisShield Manifest V3 Background Service Worker
+ * AegisShield Manifest V3 Background Service Worker (v2.6)
  * - Automatically inspects navigated tabs via the Aegis Autonomous Agent API
+ * - Checks User Whitelist and 24-hour Temporary Bypass Tokens
  * - Updates toolbar badge score & color
  * - Triggers full-screen phishing interception overlay on High Risk / Confirmed Malicious domains
  * - Provides Right-Click Context Menu investigation for links and selected messages
@@ -33,6 +34,19 @@ function updateBadge(tabId, score, classification) {
   chrome.action.setBadgeBackgroundColor({ tabId, color });
 }
 
+async function isDomainWhitelistedOrBypassed(hostname) {
+  if (!hostname) return false;
+  const lower = hostname.toLowerCase();
+  const data = await chrome.storage.local.get(["user_whitelist", "active_bypasses"]);
+  const whitelist = data.user_whitelist || [];
+  if (whitelist.includes(lower)) return true;
+
+  const bypasses = data.active_bypasses || {};
+  if (bypasses[lower] && bypasses[lower] > Date.now()) return true;
+
+  return false;
+}
+
 async function runAgentScan(payload) {
   const res = await fetch(`${AEGIS_API_BASE}/api/v1/agent/investigate`, {
     method: "POST",
@@ -60,6 +74,13 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   }
 
   try {
+    const parsed = new URL(tab.url);
+    if (await isDomainWhitelistedOrBypassed(parsed.hostname)) {
+      chrome.action.setBadgeText({ tabId, text: "OK" });
+      chrome.action.setBadgeBackgroundColor({ tabId, color: "#10b981" });
+      return;
+    }
+
     const result = await runAgentScan({
       query: tab.url,
       page_url: tab.url,
@@ -82,25 +103,42 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   }
 });
 
-// Listen for DOM Password Form sensor or manual scan requests from content/popup
+// Listen for DOM Password Form sensor, bypass registrations, or manual scan requests
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (msg.type === "AEGIS_SET_BYPASS" && msg.domain) {
+    const domain = msg.domain.toLowerCase();
+    chrome.storage.local.get(["active_bypasses"], (res) => {
+      const bypasses = res.active_bypasses || {};
+      bypasses[domain] = Date.now() + 24 * 3600 * 1000; // 24-hour bypass token
+      chrome.storage.local.set({ active_bypasses: bypasses });
+    });
+    sendResponse({ ok: true });
+    return true;
+  }
+
   if (msg.type === "AEGIS_DOM_PASSWORD_DETECTED" && sender.tab) {
     const tabId = sender.tab.id;
-    runAgentScan({
-      query: msg.url,
-      page_url: msg.url,
-      has_password_form: true,
-      auto_anchor_web3: true
-    })
-      .then((result) => {
-        chrome.storage.local.set({ [`tab_${tabId}`]: result, latest_scan: result });
-        updateBadge(tabId, result.risk_score, result.risk_classification);
-        if (result.risk_score >= 60) {
-          chrome.tabs.sendMessage(tabId, { type: "AEGIS_BLOCK_PAGE", data: result }).catch(() => {});
-        }
-        sendResponse({ ok: true, result });
-      })
-      .catch((err) => sendResponse({ ok: false, error: err.message }));
+    try {
+      const parsed = new URL(msg.url);
+      isDomainWhitelistedOrBypassed(parsed.hostname).then((bypassed) => {
+        if (bypassed) return;
+        runAgentScan({
+          query: msg.url,
+          page_url: msg.url,
+          has_password_form: true,
+          auto_anchor_web3: true
+        })
+          .then((result) => {
+            chrome.storage.local.set({ [`tab_${tabId}`]: result, latest_scan: result });
+            updateBadge(tabId, result.risk_score, result.risk_classification);
+            if (result.risk_score >= 60) {
+              chrome.tabs.sendMessage(tabId, { type: "AEGIS_BLOCK_PAGE", data: result }).catch(() => {});
+            }
+            sendResponse({ ok: true, result });
+          })
+          .catch((err) => sendResponse({ ok: false, error: err.message }));
+      });
+    } catch (_) {}
     return true;
   }
 

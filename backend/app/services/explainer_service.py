@@ -110,28 +110,28 @@ Format your response cleanly:
 
         if classification == RiskClassification.CONFIRMED_MALICIOUS:
             lines.append(
-                f"⚠️ CONFIRMED SECURITY THREAT: Target '{target}' matches verified malicious records in "
+                f"[CONFIRMED SECURITY THREAT] Target '{target}' matches verified malicious records in "
                 f"authoritative cybersecurity feeds or utilizes a compromised/distrusted Certificate Authority."
             )
         elif classification == RiskClassification.HIGH_RISK:
             lines.append(
-                f"🚨 HIGH RISK: Multiple significant threat indicators (Risk Score: {score}/100) were "
+                f"[HIGH RISK] Multiple significant threat indicators (Risk Score: {score}/100) were "
                 f"identified for '{target}'. Interaction is strongly discouraged."
             )
         elif classification == RiskClassification.SUSPICIOUS:
             lines.append(
-                f"⚠️ SUSPICIOUS ACTIVITY: One or more anomalous indicators were identified for '{target}' "
+                f"[SUSPICIOUS ACTIVITY] One or more anomalous indicators were identified for '{target}' "
                 f"(Risk Score: {score}/100). Further verification is recommended."
             )
         elif classification == RiskClassification.LOW_RISK:
             lines.append(
-                f"🛡️ LOW RISK ASSESSMENT: No significant malicious indicators were identified across "
+                f"[LOW RISK ASSESSMENT] No significant malicious indicators were identified across "
                 f"{coverage_percent}% completed checks. (Notice: 'Low Risk' does not guarantee absolute safety; "
                 f"always exercise prudent security hygiene)."
             )
         else:
             lines.append(
-                f"❓ INCONCLUSIVE: Insufficient technical telemetry was obtainable for '{target}' "
+                f"[INCONCLUSIVE] Insufficient technical telemetry was obtainable for '{target}' "
                 f"to reach a definitive verdict."
             )
 
@@ -142,17 +142,17 @@ Format your response cleanly:
         if critical_and_high:
             lines.append("\nPrimary Threats Detected:")
             for f in critical_and_high[:4]:
-                lines.append(f"• {f.title}: {f.evidence}")
+                lines.append(f"- {f.title}: {f.evidence}")
 
         if medium_and_low and len(critical_and_high) < 3:
             lines.append("\nSecondary Technical Observations:")
             for f in medium_and_low[:3]:
-                lines.append(f"• {f.title}: {f.evidence}")
+                lines.append(f"- {f.title}: {f.evidence}")
 
         if benign_matches:
             lines.append("\nTrust Indicators:")
             for f in benign_matches:
-                lines.append(f"• {f.title}: {f.evidence}")
+                lines.append(f"- {f.title}: {f.evidence}")
 
         lines.append("\nRecommended Next Actions:")
         if classification in (RiskClassification.CONFIRMED_MALICIOUS, RiskClassification.HIGH_RISK):

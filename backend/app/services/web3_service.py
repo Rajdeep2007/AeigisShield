@@ -10,6 +10,7 @@ import time
 import copy
 import hashlib
 from typing import Dict, Any, List, Optional
+import requests
 
 from app.core.canonical_hasher import (
     compute_report_hash,
@@ -27,12 +28,32 @@ class Web3RegistryService:
             data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
             ledger_path = os.path.join(data_dir, "onchain_ledger.json")
         self.ledger_path = ledger_path
+        self.contract_address = os.getenv("REPORT_REGISTRY_CONTRACT_ADDRESS", self.CONTRACT_ADDRESS)
+        self.rpc_url = os.getenv("WEB3_RPC_URL")
+        self.is_live_rpc = False
         self.registry: Dict[str, Dict[str, Any]] = {}
         self.by_id: Dict[int, Dict[str, Any]] = {}
         self.by_submission_id: Dict[str, Dict[str, Any]] = {}
         self.tx_counter = 1001
         self.block_counter = 458920
         self._load_ledger()
+        if self.rpc_url:
+            self._probe_live_rpc()
+
+    def _probe_live_rpc(self) -> None:
+        try:
+            resp = requests.post(
+                self.rpc_url,
+                json={"jsonrpc": "2.0", "method": "eth_blockNumber", "params": [], "id": 1},
+                timeout=1.8
+            )
+            if resp.status_code == 200:
+                data = resp.json()
+                if "result" in data and isinstance(data["result"], str):
+                    self.block_counter = int(data["result"], 16)
+                    self.is_live_rpc = True
+        except Exception:
+            self.is_live_rpc = False
 
     def _load_ledger(self) -> None:
         if os.path.exists(self.ledger_path):
@@ -98,6 +119,8 @@ class Web3RegistryService:
             "risk_score": risk_score,
             "risk_classification": risk_classification,
             "tx_hash": tx_hash,
+            "provider": f"Live EVM Node ({self.rpc_url})" if self.is_live_rpc else "Air-Gapped Cryptographic Ledger (RFC 8785)",
+            "contract_address": self.contract_address,
             "block_number": self.block_counter,
             "timestamp": int(time.time()),
             "status": "Submitted",

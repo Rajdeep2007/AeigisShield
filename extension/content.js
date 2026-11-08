@@ -1,7 +1,9 @@
 /**
- * AegisShield Content Script
+ * AegisShield Content Script (v2.6)
  * - Inspects DOM for active credential-harvesting forms (<input type="password">)
+ * - Checks session bypass tokens before rendering blocker
  * - Renders the Full-Screen Red Phishing Blocker Overlay when risk_score >= 60
+ * - Provides 24-hour bypass persistence and safe redirect actions
  * - Renders the Floating Aegis Agent Mini-Card for right-click link/message investigations
  */
 
@@ -31,6 +33,11 @@
 
   // 2. Render Full-Screen Red Phishing Blocker Overlay
   function showPhishingBlockerOverlay(data) {
+    // Check if session bypass is active
+    if (sessionStorage.getItem("aegis_bypass_" + window.location.hostname)) {
+      return;
+    }
+
     const existing = document.getElementById("aegis-shield-fullscreen-blocker");
     if (existing) existing.remove();
 
@@ -70,7 +77,7 @@
             </div>
             <div>
               <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#fca5a5; font-weight:700;">
-                AegisShield Autonomous AI Agent • Active Interception
+                AegisShield Autonomous AI Agent • Active Interception (v2.6)
               </div>
               <h1 style="margin:2px 0 0; font-size:22px; font-weight:800; color:#ffffff;">
                 Deceptive / High-Risk Website Blocked
@@ -106,7 +113,7 @@
             ← Leave Site Immediately (Back to Safety)
           </button>
           <button id="aegis-btn-proceed-unsafe" style="padding:12px 16px; background:transparent; color:#94a3b8; font-weight:600; font-size:12px; border:1px solid rgba(148,163,184,0.35); border-radius:12px; cursor:pointer;">
-            Dismiss Warning (Proceed at Own Risk)
+            Dismiss Warning (Bypass for 24h)
           </button>
         </div>
       </div>
@@ -123,6 +130,11 @@
     });
 
     document.getElementById("aegis-btn-proceed-unsafe").addEventListener("click", () => {
+      sessionStorage.setItem("aegis_bypass_" + window.location.hostname, "true");
+      chrome.runtime.sendMessage({
+        type: "AEGIS_SET_BYPASS",
+        domain: window.location.hostname
+      }).catch(() => {});
       overlay.remove();
     });
   }

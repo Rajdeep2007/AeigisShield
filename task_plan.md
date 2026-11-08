@@ -57,3 +57,14 @@
   - [x] 7.4 Created turnkey deployment packaging: `requirements.txt`, `.env.example`, `start_server.bat`, `start_server.ps1`, `run_tests.bat`, `run_tests.ps1`, `Dockerfile`, `docker-compose.yml`.
   - [x] 7.5 Executed `/understand` knowledge graph generation (`.ua/knowledge-graph.json` and `.ua/meta.json`).
   - [x] 7.6 Verified 100% pass rate across 19 unit & integration tests; synchronized with remote GitHub repository.
+
+- [x] **Phase 8: Advanced Security Hardening, False-Positive Elimination & MV3 Production Packaging**
+  - [x] 8.1 **Asymmetric Key-Size Validation**: Support for ECC P-256 / Ed25519 (256-bit keys recognized as 128-bit security level, equivalent to RSA 3072); eliminates false positives on modern ECC sites (GitHub, Cloudflare, Apple).
+  - [x] 8.2 **Calibrated Typosquatting Engine**: Enforce strict length limits and benign dictionary guards (e.g. `data`, `bank`, `news`) to eliminate 4-letter false-positive collisions (`data.com` vs `meta`).
+  - [x] 8.3 **Multi-Tenant Anycast/CDN Graph Filter**: NetworkX correlation engine excludes Cloudflare, Fastly, CloudFront, and GitHub Pages shared IPs from transitive campaign bridging.
+  - [x] 8.4 **SSRF Concurrency Lock**: Thread-safe DNS IP pinning with `threading.RLock` to eliminate race conditions in multi-threaded environments.
+  - [x] 8.5 **Web3 Dual-Mode EVM Provider**: Dual-mode support for both zero-config local RFC 8785 JSON ledger and live EVM RPC endpoints via `WEB3_RPC_URL` and `REPORT_REGISTRY_CONTRACT_ADDRESS`.
+  - [x] 8.6 **Smart Contract Test Suite**: Added `contracts/test_report_registry.py` testing function selectors, event topics, and tamper-resistant provenance lifecycle (100% pass rate).
+  - [x] 8.7 **Browser Extension MV3 Production Packaging**: Generated 16px, 32px, 48px, 128px PNG shield icons, added user domain whitelist manager, and 24-hour bypass token support.
+  - [x] 8.8 **UI/UX Consistency**: Standardized version badges to `v2.6` across all 9 static HTML portals, fixed Windows console unicode mojibake.
+  - [x] 8.9 **Automated Regression Suite**: Expanded test suite to 31 tests (18 core unit + 10 API integration + 3 contract tests), all passing 100%.

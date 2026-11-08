@@ -6,6 +6,7 @@ cloud metadata exfiltration (AWS/GCP/Azure 169.254.169.254), and DNS rebinding a
 
 import ipaddress
 import socket
+import threading
 import urllib3
 from urllib.parse import urlparse
 from typing import Tuple, List, Optional
@@ -50,6 +51,7 @@ class DNSResolutionError(Exception):
 
 class SSRFGuard:
     _dns_cache: dict = {}
+    _pinning_lock: threading.RLock = threading.RLock()
 
     @staticmethod
     def validate_url(url: str) -> Tuple[str, str, int, str]:
@@ -184,27 +186,28 @@ class SSRFGuard:
         if headers:
             req_headers.update(headers)
 
-        # Pin DNS resolution for this hostname during the socket connection to prevent TOCTOU rebinding
-        orig_getaddrinfo = socket.getaddrinfo
+        # Pin DNS resolution for this hostname with thread lock to prevent TOCTOU rebinding & concurrency races
+        with SSRFGuard._pinning_lock:
+            orig_getaddrinfo = socket.getaddrinfo
 
-        def _pinned_getaddrinfo(host, p, family=0, type=0, proto=0, flags=0):
-            if host and host.lower() == hostname.lower():
-                ip_obj = ipaddress.ip_address(resolved_ip)
-                fam = socket.AF_INET6 if ip_obj.version == 6 else socket.AF_INET
-                return [(fam, socket.SOCK_STREAM, socket.IPPROTO_TCP, "", (resolved_ip, p or port))]
-            return orig_getaddrinfo(host, p, family, type, proto, flags)
+            def _pinned_getaddrinfo(host, p, family=0, type=0, proto=0, flags=0):
+                if host and host.lower() == hostname.lower():
+                    ip_obj = ipaddress.ip_address(resolved_ip)
+                    fam = socket.AF_INET6 if ip_obj.version == 6 else socket.AF_INET
+                    return [(fam, socket.SOCK_STREAM, socket.IPPROTO_TCP, "", (resolved_ip, p or port))]
+                return orig_getaddrinfo(host, p, family, type, proto, flags)
 
-        try:
-            socket.getaddrinfo = _pinned_getaddrinfo
-            resp = sess.request(
-                method=method.upper(),
-                url=normalized_url,
-                headers=req_headers,
-                allow_redirects=False,
-                timeout=timeout,
-                verify=False,
-                stream=True,
-            )
-            return resp, normalized_url, hostname, resolved_ip
-        finally:
-            socket.getaddrinfo = orig_getaddrinfo
+            try:
+                socket.getaddrinfo = _pinned_getaddrinfo
+                resp = sess.request(
+                    method=method.upper(),
+                    url=normalized_url,
+                    headers=req_headers,
+                    allow_redirects=False,
+                    timeout=timeout,
+                    verify=False,
+                    stream=True,
+                )
+                return resp, normalized_url, hostname, resolved_ip
+            finally:
+                socket.getaddrinfo = orig_getaddrinfo
