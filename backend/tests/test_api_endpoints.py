@@ -17,6 +17,7 @@ from app.main import (
     health,
     favicon,
     serve_dashboard,
+    serve_consumer,
     serve_sandbox,
     serve_findings,
     serve_redirects,
@@ -57,7 +58,7 @@ def test_health_and_favicon_endpoints():
 
 def test_static_page_routes():
     # Verify all dedicated subpages resolve properly
-    for fn in (serve_dashboard, serve_sandbox, serve_findings, serve_redirects, serve_tls, serve_graph, serve_web3):
+    for fn in (serve_dashboard, serve_consumer, serve_sandbox, serve_findings, serve_redirects, serve_tls, serve_graph, serve_web3):
         res = fn()
         assert res is not None
 

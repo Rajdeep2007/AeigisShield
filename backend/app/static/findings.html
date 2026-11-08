@@ -1,430 +1,436 @@
-<!DOCTYPE html>
-<html lang="en" class="dark">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Threat Findings Matrix — AegisTrust SOC</title>
-  
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
-
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-            mono: ['"JetBrains Mono"', 'monospace'],
-          },
-          colors: {
-            noir: {
-              950: '#06080d',
-              900: '#090d15',
-              850: '#0f1422',
-              800: '#161d2f',
-              750: '#1d263c',
-              700: '#26314c',
-              border: '#1f293d',
-              accent: '#38bdf8',
-              gold: '#f59e0b',
-              emerald: '#10b981',
-              rose: '#f43f5e',
-              purple: '#c084fc'
-            }
-          }
-        }
-      }
-    };
-  </script>
-
-  <style>
-    body {
-      background-color: #06080d;
-      color: #e2e8f0;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-    }
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #090d15; }
-    ::-webkit-scrollbar-thumb { background: #1f293d; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #38bdf8; }
-    .material-symbols-outlined {
-      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-      vertical-align: middle;
-    }
-    .material-symbols-fill {
-      font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
-      vertical-align: middle;
-    }
-  </style>
-</head>
-<body class="min-h-screen bg-noir-950 text-slate-100 flex flex-col lg:flex-row antialiased selection:bg-sky-500/30 selection:text-sky-200">
-
-  <!-- SIDEBAR NAVIGATION -->
-  <aside class="w-full lg:w-64 lg:min-h-screen bg-noir-900 border-b lg:border-b-0 lg:border-r border-noir-border flex-shrink-0 flex flex-col justify-between p-4 z-30">
-    <div class="flex flex-col gap-6">
-      
-      <!-- Brand Logo -->
-      <a href="/" class="flex items-center gap-3 px-2 py-1">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center shadow-lg shadow-sky-500/20 text-white">
-          <span class="material-symbols-outlined text-2xl material-symbols-fill">security</span>
-        </div>
-        <div class="flex flex-col">
-          <span class="font-bold text-base tracking-tight text-white flex items-center gap-1.5">
-            AegisTrust
-            <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-400 border border-sky-500/30">v2.4</span>
-          </span>
-          <span class="text-[11px] font-mono text-slate-400">SOC Threat Intelligence</span>
-        </div>
-      </a>
-
-      <!-- Navigation Links -->
-      <nav class="flex flex-col gap-1">
-        
-        <a href="/" class="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:text-white hover:bg-noir-800 font-medium text-sm transition-all group">
-          <span class="material-symbols-outlined text-sm text-slate-400 group-hover:text-sky-400">troubleshoot</span>
-          <span>Live SOC Console</span>
-          
-        </a>
-        <a href="/findings" class="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent bg-sky-500/15 text-sky-300 font-semibold border-sky-500/30 shadow-sm text-sm transition-all group">
-          <span class="material-symbols-outlined text-sm text-sky-400">density_medium</span>
-          <span>Findings Matrix</span>
-          <span class="ml-auto w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        </a>
-        <a href="/redirects" class="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:text-white hover:bg-noir-800 font-medium text-sm transition-all group">
-          <span class="material-symbols-outlined text-sm text-slate-400 group-hover:text-sky-400">alt_route</span>
-          <span>Redirect Timeline</span>
-          
-        </a>
-        <a href="/tls" class="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:text-white hover:bg-noir-800 font-medium text-sm transition-all group">
-          <span class="material-symbols-outlined text-sm text-slate-400 group-hover:text-sky-400">verified_user</span>
-          <span>TLS & CA Inspector</span>
-          
-        </a>
-        <a href="/graph" class="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:text-white hover:bg-noir-800 font-medium text-sm transition-all group">
-          <span class="material-symbols-outlined text-sm text-slate-400 group-hover:text-sky-400">hub</span>
-          <span>Correlation Graph</span>
-          
-        </a>
-        <a href="/web3" class="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:text-white hover:bg-noir-800 font-medium text-sm transition-all group">
-          <span class="material-symbols-outlined text-sm text-slate-400 group-hover:text-sky-400">token</span>
-          <span>Web3 Provenance</span>
-          
-        </a>
-        <a href="/sandbox" class="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:text-white hover:bg-noir-800 font-medium text-sm transition-all group">
-          <span class="material-symbols-outlined text-sm text-slate-400 group-hover:text-sky-400">science</span>
-          <span>Evaluation Sandbox</span>
-          <span class="ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded bg-noir-750 text-amber-400 border border-amber-500/20">Presets</span>
-        </a>
-      </nav>
-
-      <!-- Active Guard System Info -->
-      <div class="p-3 rounded-xl bg-noir-850 border border-noir-border flex flex-col gap-2">
-        <span class="text-[11px] font-mono text-slate-400 uppercase tracking-wider font-semibold">Active Protections</span>
-        <div class="flex items-center justify-between text-xs font-mono">
-          <span class="text-slate-400">SSRF Shield</span>
-          <span class="text-emerald-400 flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Active
-          </span>
-        </div>
-        <div class="flex items-center justify-between text-xs font-mono">
-          <span class="text-slate-400">Private CIDRs</span>
-          <span class="text-sky-400">Enforced</span>
-        </div>
-        <div class="flex items-center justify-between text-xs font-mono">
-          <span class="text-slate-400">RFC 8785 Hash</span>
-          <span class="text-purple-400">Keccak-256</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Bottom Status Card -->
-    <div class="pt-4 border-t border-noir-border flex flex-col gap-2">
-      <div class="flex items-center justify-between text-xs font-mono text-slate-400">
-        <span>Sepolia Testnet</span>
-        <span class="text-emerald-400 font-semibold">#458,922</span>
-      </div>
-      <div class="flex items-center justify-between text-xs font-mono text-slate-400">
-        <span>ReportRegistry.sol</span>
-        <span class="text-slate-300">0x3A52...23B0</span>
-      </div>
-    </div>
-  </aside>
-
-  <!-- MAIN VIEW -->
-  <div class="flex-1 flex flex-col min-w-0 z-10">
-    <header class="h-16 bg-noir-900/90 backdrop-blur-md border-b border-noir-border px-4 sm:px-6 flex items-center justify-between sticky top-0 z-20">
-      <div class="flex items-center gap-3">
-        <span class="text-xs font-mono text-slate-400">SOC Investigations</span>
-        <span class="text-slate-600">/</span>
-        <span class="text-xs font-mono text-sky-400 font-semibold">Findings Matrix</span>
-      </div>
-      <div class="flex items-center gap-3">
-        <a href="/" class="px-3 py-1.5 rounded-lg bg-noir-800 hover:bg-noir-750 text-slate-300 text-xs font-mono border border-noir-border transition-all">&larr; Back to Console</a>
-        <button onclick="exportStix()" class="px-3 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs font-mono flex items-center gap-1.5 shadow-md transition-all">
-          <span>Export STIX 2.1</span>
-          <span class="material-symbols-outlined text-sm">download</span>
-        </button>
-      </div>
-    </header>
-
-    <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-6">
-
-    <!-- HORIZONTAL PAGE SUB-NAV (Exact Match to Design Reference) -->
-    <div class="flex items-center gap-2.5 overflow-x-auto pb-2 border-b border-noir-border scrollbar-none">
-      
-            <a href="/findings" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-sky-500 text-slate-950 font-bold text-xs whitespace-nowrap shadow-md transition-all flex-shrink-0">
-              <span class="material-symbols-outlined text-sm font-bold">density_medium</span>
-              <span>Findings Matrix</span>
-              <span class="ml-1 px-1.5 py-0.2 rounded-full bg-slate-900 text-sky-300 text-[10px]">3</span>
-            </a>
-            <a href="/redirects" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-noir-850 hover:bg-noir-800 text-slate-400 hover:text-white font-medium text-xs whitespace-nowrap border border-noir-border transition-all flex-shrink-0">
-              <span class="material-symbols-outlined text-sm">alt_route</span>
-              <span>Redirect Timeline</span>
-              
-            </a>
-            <a href="/tls" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-noir-850 hover:bg-noir-800 text-slate-400 hover:text-white font-medium text-xs whitespace-nowrap border border-noir-border transition-all flex-shrink-0">
-              <span class="material-symbols-outlined text-sm">verified_user</span>
-              <span>TLS & CA Inspector</span>
-              
-            </a>
-            <a href="/graph" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-noir-850 hover:bg-noir-800 text-slate-400 hover:text-white font-medium text-xs whitespace-nowrap border border-noir-border transition-all flex-shrink-0">
-              <span class="material-symbols-outlined text-sm">hub</span>
-              <span>Correlation Graph</span>
-              
-            </a>
-            <a href="/web3" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-noir-850 hover:bg-noir-800 text-slate-400 hover:text-white font-medium text-xs whitespace-nowrap border border-noir-border transition-all flex-shrink-0">
-              <span class="material-symbols-outlined text-sm">token</span>
-              <span>Web3 Provenance</span>
-              
-            </a>
-    </div>
-
-    <!-- CURRENT TARGET CONTEXT BAR -->
-    <div class="p-4 rounded-xl bg-noir-900 border border-noir-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-lg bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center font-bold">
-          <span class="material-symbols-outlined text-lg">language</span>
-        </div>
-        <div class="flex flex-col">
-          <span class="text-[11px] font-mono text-slate-400 uppercase">Target Under Analysis</span>
-          <span id="page-target-display" class="font-mono text-sm sm:text-base font-bold text-white break-all">paypa1-account-update.xyz</span>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-2.5">
-        <span id="page-score-badge" class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">
-          CONFIRMED MALICIOUS (75/100)
-        </span>
-        <a href="/" class="px-3 py-1.5 rounded-lg bg-noir-800 hover:bg-noir-750 text-slate-300 text-xs font-mono border border-noir-border transition-all">
-          New Scan
-        </a>
-      </div>
-    </div>
-
-      <!-- Severity Filter & Stats Bar -->
-      <section class="p-4 rounded-xl bg-noir-900 border border-noir-border flex flex-wrap items-center justify-between gap-3 shadow-md">
-        <div class="flex flex-wrap items-center gap-1.5 font-mono text-xs">
-          <span class="text-slate-400 mr-2 uppercase text-[11px] font-semibold">Severity Filter:</span>
-          <button data-filter-btn="all" onclick="filterFindings('all')" id="filter-count-all" class="px-3 py-1 rounded-lg bg-sky-500 text-slate-950 font-bold">All (4)</button>
-          <button data-filter-btn="CRITICAL" onclick="filterFindings('CRITICAL')" id="filter-count-critical" class="px-3 py-1 rounded-lg bg-noir-800 hover:bg-noir-750 text-rose-400 font-semibold">Critical (1)</button>
-          <button data-filter-btn="HIGH" onclick="filterFindings('HIGH')" id="filter-count-high" class="px-3 py-1 rounded-lg bg-noir-800 hover:bg-noir-750 text-amber-400 font-semibold">High (2)</button>
-          <button data-filter-btn="MEDIUM" onclick="filterFindings('MEDIUM')" id="filter-count-medium" class="px-3 py-1 rounded-lg bg-noir-800 hover:bg-noir-750 text-slate-300 font-semibold">Medium (1)</button>
-          <button data-filter-btn="BENIGN" onclick="filterFindings('BENIGN')" id="filter-count-benign" class="px-3 py-1 rounded-lg bg-noir-800 hover:bg-noir-750 text-emerald-400 font-semibold">Benign (0)</button>
-        </div>
-
-        <div class="flex items-center gap-2 text-xs font-mono text-slate-400">
-          <span class="material-symbols-outlined text-sm text-sky-400">calculate</span>
-          <span>Deterministic Additive Scoring with Category Caps</span>
-        </div>
-      </section>
-
-      <!-- Findings Cards List -->
-      <section id="findings-container" class="space-y-4">
-        <!-- Injected via JavaScript -->
-      </section>
-    </main>
-  </div>
-  <script>
-    // Universal State Synchronizer
-    function getStoredReport() {
-      const stored = localStorage.getItem('aegis_current_report');
-      if (stored) {
-        try { return JSON.parse(stored); } catch(e) {}
-      }
-      return null;
-    }
-
-    const defaultSampleReport = {
-      submission_id: "a8f192b1",
-      target: "paypa1-account-update.xyz",
-      risk_classification: "CONFIRMED_MALICIOUS",
-      risk_score: 75,
-      findings: [
-        {
-          source_module: "LevenshteinAnalyzer",
-          severity: "CRITICAL",
-          title: "Targeted Brand Name Homograph & Typosquat",
-          description: "Hostname paypa1-account-update.xyz matches high-reputation protected brand at edit distance 1 with character substitution (1 for l).",
-          score_impact: 50,
-          confidence: 0.99,
-          remediation: "SINKHOLE DNS"
-        },
-        {
-          source_module: "MozillaDistrustDB",
-          severity: "HIGH",
-          title: "Compromised Certificate Authority Hierarchy (eMudhra)",
-          description: "Leaf certificate correlates with eMudhra Sub-CA subject to key-generation audit flags and Mozilla distrust proceedings (Bugzilla #1898124).",
-          score_impact: 30,
-          confidence: 1.0,
-          remediation: "REVOKE CA TRUST"
-        },
-        {
-          source_module: "ChainTracer",
-          severity: "HIGH",
-          title: "Obfuscated Multi-Hop Redirection Chain",
-          description: "Initial shortlink routes through intermediate anonymizer secure-redir.org before terminating on bulletproof host IP 194.26.29.112.",
-          score_impact: 30,
-          confidence: 0.96,
-          remediation: "BLOCK INITIAL HOP"
-        },
-        {
-          source_module: "HeaderAuditor",
-          severity: "MEDIUM",
-          title: "Passive Security Header Non-Compliance",
-          description: "HTTP Strict Transport Security header absent. Content-Security-Policy absent. X-Frame-Options allows clickjacking overlays.",
-          score_impact: 15,
-          confidence: 1.0,
-          remediation: "ENFORCE HSTS"
-        }
-      ]
-    };
-
-    let currentReport = null;
-    let currentFilter = 'all';
-
-    document.addEventListener('DOMContentLoaded', () => {
-      currentReport = getStoredReport() || defaultSampleReport;
-      const targetDisp = document.getElementById('page-target-display');
-      if (targetDisp) targetDisp.textContent = currentReport.target || "paypa1-account-update.xyz";
-      
-      const scoreBadge = document.getElementById('page-score-badge');
-      if (scoreBadge) {
-        const score = currentReport.risk_score || 0;
-        const classification = (currentReport.risk_classification || 'CONFIRMED_MALICIOUS').replace(/_/g, ' ');
-        scoreBadge.textContent = `${classification} (${score}/100)`;
-        scoreBadge.className = score >= 70 ? "px-3 py-1 rounded-full text-xs font-mono font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30" : "px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
-      }
-
-      renderFindingsList();
-    });
-
-    function filterFindings(sev) {
-      currentFilter = sev;
-      document.querySelectorAll('[data-filter-btn]').forEach(btn => {
-        if (btn.getAttribute('data-filter-btn') === sev) {
-          btn.classList.add('bg-sky-500', 'text-slate-950', 'font-bold');
-          btn.classList.remove('bg-noir-800', 'text-rose-400', 'text-amber-400', 'text-slate-300', 'text-emerald-400');
-        } else {
-          btn.classList.remove('bg-sky-500', 'text-slate-950', 'font-bold');
-          btn.classList.add('bg-noir-800');
-        }
-      });
-      renderFindingsList();
-    }
-
-    function renderFindingsList() {
-      const container = document.getElementById('findings-container');
-      const findings = (currentReport && currentReport.findings) ? currentReport.findings : [];
-      
-      const filtered = findings.filter(f => {
-        if (currentFilter === 'all') return true;
-        return (f.severity || '').toUpperCase() === currentFilter.toUpperCase();
-      });
-
-      if (filtered.length === 0) {
-        container.innerHTML = `
-          <div class="p-8 rounded-xl bg-noir-900 border border-noir-border text-center space-y-2">
-            <span class="material-symbols-outlined text-emerald-400 text-3xl">verified</span>
-            <div class="text-sm font-mono font-bold text-white">No Indicators for Severity: ${currentFilter.toUpperCase()}</div>
-            <p class="text-xs text-slate-400">Target complies with security benchmarks in this category.</p>
-          </div>`;
-        return;
-      }
-
-      container.innerHTML = filtered.map(f => {
-        const sev = (f.severity || 'MEDIUM').toUpperCase();
-        let badgeColor = 'bg-slate-700 text-slate-200';
-        let ptsColor = 'text-slate-300';
-        let icon = 'info';
-
-        if (sev === 'CRITICAL') {
-          badgeColor = 'bg-rose-500/20 text-rose-400 border border-rose-500/30';
-          ptsColor = 'text-rose-400';
-          icon = 'spellcheck';
-        } else if (sev === 'HIGH') {
-          badgeColor = 'bg-amber-500/20 text-amber-400 border border-amber-500/30';
-          ptsColor = 'text-amber-400';
-          icon = 'crisis_alert';
-        } else if (sev === 'MEDIUM') {
-          badgeColor = 'bg-noir-800 text-slate-300 border border-noir-border';
-          ptsColor = 'text-slate-300';
-          icon = 'lock_open';
-        } else if (sev === 'BENIGN') {
-          badgeColor = 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
-          ptsColor = 'text-emerald-400';
-          icon = 'verified';
-        }
-
-        return `
-          <div class="p-5 rounded-xl bg-noir-900 border border-noir-border hover:border-sky-500/40 transition-all space-y-3 shadow-md">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-base ${ptsColor}">${icon}</span>
-                <span class="text-xs font-mono font-bold px-3 py-1 rounded-full ${badgeColor}">
-                  ${sev} ${f.score_impact >= 0 ? '+' : ''}${f.score_impact} PTS
-                </span>
-                <span class="text-xs font-mono text-slate-400">AegisTrust:${f.source_module || 'Core'}</span>
-              </div>
-              <div class="flex items-center gap-3 text-xs font-mono">
-                <span class="text-slate-400">Confidence: ${Math.round((f.confidence || 0.95) * 100)}%</span>
-                <span class="px-2.5 py-1 rounded bg-noir-850 border border-noir-border text-sky-400 font-semibold text-[11px]">REMEDIATION: ${f.remediation || 'MANUAL REVIEW'}</span>
-              </div>
-            </div>
-            <h3 class="text-base font-bold text-white font-mono">${f.title}</h3>
-            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-sans">${f.description}</p>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function exportStix() {
-      if (!currentReport) return;
-      const bundle = {
-        type: "bundle",
-        id: `bundle--${crypto.randomUUID()}`,
-        spec_version: "2.1",
-        objects: (currentReport.findings || []).map(f => ({
-          type: "indicator",
-          spec_version: "2.1",
-          id: `indicator--${crypto.randomUUID()}`,
-          name: f.title,
-          description: f.description,
-          pattern: `[url:value = '${currentReport.target}']`,
-          pattern_type: "stix"
-        }))
-      };
-      const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: "application/json" });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `aegistrust_findings_${(currentReport.target||'report').replace(/[^a-zA-Z0-9]/g, '_')}.json`;
-      a.click();
-    }
-  </script>
-</body>
-</html>
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Threat Findings Matrix — AegisTrust SOC</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            noir: {
+              950: '#06080d',
+              900: '#090d15',
+              850: '#0f1422',
+              800: '#161d2f',
+              750: '#1d263c',
+              700: '#26314c',
+              border: '#1f293d',
+              accent: '#38bdf8',
+              gold: '#f59e0b',
+              emerald: '#10b981',
+              rose: '#f43f5e',
+              purple: '#c084fc'
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      background-color: #06080d;
+      color: #e2e8f0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #090d15; }
+    ::-webkit-scrollbar-thumb { background: #1f293d; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #38bdf8; }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      vertical-align: middle;
+    }
+    .material-symbols-fill {
+      font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-noir-950 text-slate-100 flex flex-col lg:flex-row antialiased selection:bg-sky-500/30 selection:text-sky-200">
+
+  <!-- SIDEBAR NAVIGATION -->
+  <aside class="w-full lg:w-64 lg:min-h-screen bg-noir-900 border-b lg:border-b-0 lg:border-r border-noir-border flex-shrink-0 flex flex-col justify-between p-4 z-30">
+    <div class="flex flex-col gap-6">
+      
+      <!-- Brand Logo -->
+      <a href="/" class="flex items-center gap-3 px-2 py-1">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center shadow-lg shadow-sky-500/20 text-white">
+          <span class="material-symbols-outlined text-2xl material-symbols-fill">security</span>
+        </div>
+        <div class="flex flex-col">
+          <span class="font-bold text-base tracking-tight text-white flex items-center gap-1.5">
+            AegisTrust
+            <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-400 border border-sky-500/30">v2.4</span>
+          </span>
+          <span class="text-[11px] font-mono text-slate-400">SOC Threat Intelligence</span>
+        </div>
+      </a>
+
+      <!-- Navigation Links -->
+      <nav class="flex flex-col gap-1">
+        
+        <a href="/consumer" class="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-amber-300 hover:text-white hover:bg-noir-800 font-medium text-sm transition-all group">
+          <span class="material-symbols-outlined text-sm text-amber-400 group-hover:scale-110 transition-transform">person</span>
+          <span>Everyday User Mode</span>
+          <span class="ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">Simple</span>
+        </a>
+
+        <a href="/" class="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:text-white hover:bg-noir-800 font-medium text-sm transition-all group">
+          <span class="material-symbols-outlined text-sm text-slate-400 group-hover:text-sky-400">troubleshoot</span>
+          <span>Live SOC Console</span>
+          
+        </a>
+        <a href="/findings" class="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent bg-sky-500/15 text-sky-300 font-semibold border-sky-500/30 shadow-sm text-sm transition-all group">
+          <span class="material-symbols-outlined text-sm text-sky-400">density_medium</span>
+          <span>Findings Matrix</span>
+          <span class="ml-auto w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        </a>
+        <a href="/redirects" class="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:text-white hover:bg-noir-800 font-medium text-sm transition-all group">
+          <span class="material-symbols-outlined text-sm text-slate-400 group-hover:text-sky-400">alt_route</span>
+          <span>Redirect Timeline</span>
+          
+        </a>
+        <a href="/tls" class="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:text-white hover:bg-noir-800 font-medium text-sm transition-all group">
+          <span class="material-symbols-outlined text-sm text-slate-400 group-hover:text-sky-400">verified_user</span>
+          <span>TLS & CA Inspector</span>
+          
+        </a>
+        <a href="/graph" class="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:text-white hover:bg-noir-800 font-medium text-sm transition-all group">
+          <span class="material-symbols-outlined text-sm text-slate-400 group-hover:text-sky-400">hub</span>
+          <span>Correlation Graph</span>
+          
+        </a>
+        <a href="/web3" class="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:text-white hover:bg-noir-800 font-medium text-sm transition-all group">
+          <span class="material-symbols-outlined text-sm text-slate-400 group-hover:text-sky-400">token</span>
+          <span>Web3 Provenance</span>
+          
+        </a>
+        <a href="/sandbox" class="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:text-white hover:bg-noir-800 font-medium text-sm transition-all group">
+          <span class="material-symbols-outlined text-sm text-slate-400 group-hover:text-sky-400">science</span>
+          <span>Evaluation Sandbox</span>
+          <span class="ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded bg-noir-750 text-amber-400 border border-amber-500/20">Presets</span>
+        </a>
+      </nav>
+
+      <!-- Active Guard System Info -->
+      <div class="p-3 rounded-xl bg-noir-850 border border-noir-border flex flex-col gap-2">
+        <span class="text-[11px] font-mono text-slate-400 uppercase tracking-wider font-semibold">Active Protections</span>
+        <div class="flex items-center justify-between text-xs font-mono">
+          <span class="text-slate-400">SSRF Shield</span>
+          <span class="text-emerald-400 flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Active
+          </span>
+        </div>
+        <div class="flex items-center justify-between text-xs font-mono">
+          <span class="text-slate-400">Private CIDRs</span>
+          <span class="text-sky-400">Enforced</span>
+        </div>
+        <div class="flex items-center justify-between text-xs font-mono">
+          <span class="text-slate-400">RFC 8785 Hash</span>
+          <span class="text-purple-400">Keccak-256</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Status Card -->
+    <div class="pt-4 border-t border-noir-border flex flex-col gap-2">
+      <div class="flex items-center justify-between text-xs font-mono text-slate-400">
+        <span>Sepolia Testnet</span>
+        <span class="text-emerald-400 font-semibold">#458,922</span>
+      </div>
+      <div class="flex items-center justify-between text-xs font-mono text-slate-400">
+        <span>ReportRegistry.sol</span>
+        <span class="text-slate-300">0x3A52...23B0</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN VIEW -->
+  <div class="flex-1 flex flex-col min-w-0 z-10">
+    <header class="h-16 bg-noir-900/90 backdrop-blur-md border-b border-noir-border px-4 sm:px-6 flex items-center justify-between sticky top-0 z-20">
+      <div class="flex items-center gap-3">
+        <span class="text-xs font-mono text-slate-400">SOC Investigations</span>
+        <span class="text-slate-600">/</span>
+        <span class="text-xs font-mono text-sky-400 font-semibold">Findings Matrix</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="/" class="px-3 py-1.5 rounded-lg bg-noir-800 hover:bg-noir-750 text-slate-300 text-xs font-mono border border-noir-border transition-all">&larr; Back to Console</a>
+        <button onclick="exportStix()" class="px-3 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs font-mono flex items-center gap-1.5 shadow-md transition-all">
+          <span>Export STIX 2.1</span>
+          <span class="material-symbols-outlined text-sm">download</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-6">
+
+    <!-- HORIZONTAL PAGE SUB-NAV (Exact Match to Design Reference) -->
+    <div class="flex items-center gap-2.5 overflow-x-auto pb-2 border-b border-noir-border scrollbar-none">
+      
+            <a href="/findings" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-sky-500 text-slate-950 font-bold text-xs whitespace-nowrap shadow-md transition-all flex-shrink-0">
+              <span class="material-symbols-outlined text-sm font-bold">density_medium</span>
+              <span>Findings Matrix</span>
+              <span class="ml-1 px-1.5 py-0.2 rounded-full bg-slate-900 text-sky-300 text-[10px]">3</span>
+            </a>
+            <a href="/redirects" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-noir-850 hover:bg-noir-800 text-slate-400 hover:text-white font-medium text-xs whitespace-nowrap border border-noir-border transition-all flex-shrink-0">
+              <span class="material-symbols-outlined text-sm">alt_route</span>
+              <span>Redirect Timeline</span>
+              
+            </a>
+            <a href="/tls" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-noir-850 hover:bg-noir-800 text-slate-400 hover:text-white font-medium text-xs whitespace-nowrap border border-noir-border transition-all flex-shrink-0">
+              <span class="material-symbols-outlined text-sm">verified_user</span>
+              <span>TLS & CA Inspector</span>
+              
+            </a>
+            <a href="/graph" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-noir-850 hover:bg-noir-800 text-slate-400 hover:text-white font-medium text-xs whitespace-nowrap border border-noir-border transition-all flex-shrink-0">
+              <span class="material-symbols-outlined text-sm">hub</span>
+              <span>Correlation Graph</span>
+              
+            </a>
+            <a href="/web3" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-noir-850 hover:bg-noir-800 text-slate-400 hover:text-white font-medium text-xs whitespace-nowrap border border-noir-border transition-all flex-shrink-0">
+              <span class="material-symbols-outlined text-sm">token</span>
+              <span>Web3 Provenance</span>
+              
+            </a>
+    </div>
+
+    <!-- CURRENT TARGET CONTEXT BAR -->
+    <div class="p-4 rounded-xl bg-noir-900 border border-noir-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center font-bold">
+          <span class="material-symbols-outlined text-lg">language</span>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-[11px] font-mono text-slate-400 uppercase">Target Under Analysis</span>
+          <span id="page-target-display" class="font-mono text-sm sm:text-base font-bold text-white break-all">paypa1-account-update.xyz</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2.5">
+        <span id="page-score-badge" class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">
+          CONFIRMED MALICIOUS (75/100)
+        </span>
+        <a href="/" class="px-3 py-1.5 rounded-lg bg-noir-800 hover:bg-noir-750 text-slate-300 text-xs font-mono border border-noir-border transition-all">
+          New Scan
+        </a>
+      </div>
+    </div>
+
+      <!-- Severity Filter & Stats Bar -->
+      <section class="p-4 rounded-xl bg-noir-900 border border-noir-border flex flex-wrap items-center justify-between gap-3 shadow-md">
+        <div class="flex flex-wrap items-center gap-1.5 font-mono text-xs">
+          <span class="text-slate-400 mr-2 uppercase text-[11px] font-semibold">Severity Filter:</span>
+          <button data-filter-btn="all" onclick="filterFindings('all')" id="filter-count-all" class="px-3 py-1 rounded-lg bg-sky-500 text-slate-950 font-bold">All (4)</button>
+          <button data-filter-btn="CRITICAL" onclick="filterFindings('CRITICAL')" id="filter-count-critical" class="px-3 py-1 rounded-lg bg-noir-800 hover:bg-noir-750 text-rose-400 font-semibold">Critical (1)</button>
+          <button data-filter-btn="HIGH" onclick="filterFindings('HIGH')" id="filter-count-high" class="px-3 py-1 rounded-lg bg-noir-800 hover:bg-noir-750 text-amber-400 font-semibold">High (2)</button>
+          <button data-filter-btn="MEDIUM" onclick="filterFindings('MEDIUM')" id="filter-count-medium" class="px-3 py-1 rounded-lg bg-noir-800 hover:bg-noir-750 text-slate-300 font-semibold">Medium (1)</button>
+          <button data-filter-btn="BENIGN" onclick="filterFindings('BENIGN')" id="filter-count-benign" class="px-3 py-1 rounded-lg bg-noir-800 hover:bg-noir-750 text-emerald-400 font-semibold">Benign (0)</button>
+        </div>
+
+        <div class="flex items-center gap-2 text-xs font-mono text-slate-400">
+          <span class="material-symbols-outlined text-sm text-sky-400">calculate</span>
+          <span>Deterministic Additive Scoring with Category Caps</span>
+        </div>
+      </section>
+
+      <!-- Findings Cards List -->
+      <section id="findings-container" class="space-y-4">
+        <!-- Injected via JavaScript -->
+      </section>
+    </main>
+  </div>
+  <script>
+    // Universal State Synchronizer
+    function getStoredReport() {
+      const stored = localStorage.getItem('aegis_current_report');
+      if (stored) {
+        try { return JSON.parse(stored); } catch(e) {}
+      }
+      return null;
+    }
+
+    const defaultSampleReport = {
+      submission_id: "a8f192b1",
+      target: "paypa1-account-update.xyz",
+      risk_classification: "CONFIRMED_MALICIOUS",
+      risk_score: 75,
+      findings: [
+        {
+          source_module: "LevenshteinAnalyzer",
+          severity: "CRITICAL",
+          title: "Targeted Brand Name Homograph & Typosquat",
+          description: "Hostname paypa1-account-update.xyz matches high-reputation protected brand at edit distance 1 with character substitution (1 for l).",
+          score_impact: 50,
+          confidence: 0.99,
+          remediation: "SINKHOLE DNS"
+        },
+        {
+          source_module: "MozillaDistrustDB",
+          severity: "HIGH",
+          title: "Compromised Certificate Authority Hierarchy (eMudhra)",
+          description: "Leaf certificate correlates with eMudhra Sub-CA subject to key-generation audit flags and Mozilla distrust proceedings (Bugzilla #1898124).",
+          score_impact: 30,
+          confidence: 1.0,
+          remediation: "REVOKE CA TRUST"
+        },
+        {
+          source_module: "ChainTracer",
+          severity: "HIGH",
+          title: "Obfuscated Multi-Hop Redirection Chain",
+          description: "Initial shortlink routes through intermediate anonymizer secure-redir.org before terminating on bulletproof host IP 194.26.29.112.",
+          score_impact: 30,
+          confidence: 0.96,
+          remediation: "BLOCK INITIAL HOP"
+        },
+        {
+          source_module: "HeaderAuditor",
+          severity: "MEDIUM",
+          title: "Passive Security Header Non-Compliance",
+          description: "HTTP Strict Transport Security header absent. Content-Security-Policy absent. X-Frame-Options allows clickjacking overlays.",
+          score_impact: 15,
+          confidence: 1.0,
+          remediation: "ENFORCE HSTS"
+        }
+      ]
+    };
+
+    let currentReport = null;
+    let currentFilter = 'all';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      currentReport = getStoredReport() || defaultSampleReport;
+      const targetDisp = document.getElementById('page-target-display');
+      if (targetDisp) targetDisp.textContent = currentReport.target || "paypa1-account-update.xyz";
+      
+      const scoreBadge = document.getElementById('page-score-badge');
+      if (scoreBadge) {
+        const score = currentReport.risk_score || 0;
+        const classification = (currentReport.risk_classification || 'CONFIRMED_MALICIOUS').replace(/_/g, ' ');
+        scoreBadge.textContent = `${classification} (${score}/100)`;
+        scoreBadge.className = score >= 70 ? "px-3 py-1 rounded-full text-xs font-mono font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30" : "px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+      }
+
+      renderFindingsList();
+    });
+
+    function filterFindings(sev) {
+      currentFilter = sev;
+      document.querySelectorAll('[data-filter-btn]').forEach(btn => {
+        if (btn.getAttribute('data-filter-btn') === sev) {
+          btn.classList.add('bg-sky-500', 'text-slate-950', 'font-bold');
+          btn.classList.remove('bg-noir-800', 'text-rose-400', 'text-amber-400', 'text-slate-300', 'text-emerald-400');
+        } else {
+          btn.classList.remove('bg-sky-500', 'text-slate-950', 'font-bold');
+          btn.classList.add('bg-noir-800');
+        }
+      });
+      renderFindingsList();
+    }
+
+    function renderFindingsList() {
+      const container = document.getElementById('findings-container');
+      const findings = (currentReport && currentReport.findings) ? currentReport.findings : [];
+      
+      const filtered = findings.filter(f => {
+        if (currentFilter === 'all') return true;
+        return (f.severity || '').toUpperCase() === currentFilter.toUpperCase();
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="p-8 rounded-xl bg-noir-900 border border-noir-border text-center space-y-2">
+            <span class="material-symbols-outlined text-emerald-400 text-3xl">verified</span>
+            <div class="text-sm font-mono font-bold text-white">No Indicators for Severity: ${currentFilter.toUpperCase()}</div>
+            <p class="text-xs text-slate-400">Target complies with security benchmarks in this category.</p>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(f => {
+        const sev = (f.severity || 'MEDIUM').toUpperCase();
+        let badgeColor = 'bg-slate-700 text-slate-200';
+        let ptsColor = 'text-slate-300';
+        let icon = 'info';
+
+        if (sev === 'CRITICAL') {
+          badgeColor = 'bg-rose-500/20 text-rose-400 border border-rose-500/30';
+          ptsColor = 'text-rose-400';
+          icon = 'spellcheck';
+        } else if (sev === 'HIGH') {
+          badgeColor = 'bg-amber-500/20 text-amber-400 border border-amber-500/30';
+          ptsColor = 'text-amber-400';
+          icon = 'crisis_alert';
+        } else if (sev === 'MEDIUM') {
+          badgeColor = 'bg-noir-800 text-slate-300 border border-noir-border';
+          ptsColor = 'text-slate-300';
+          icon = 'lock_open';
+        } else if (sev === 'BENIGN') {
+          badgeColor = 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+          ptsColor = 'text-emerald-400';
+          icon = 'verified';
+        }
+
+        return `
+          <div class="p-5 rounded-xl bg-noir-900 border border-noir-border hover:border-sky-500/40 transition-all space-y-3 shadow-md">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-base ${ptsColor}">${icon}</span>
+                <span class="text-xs font-mono font-bold px-3 py-1 rounded-full ${badgeColor}">
+                  ${sev} ${f.score_impact >= 0 ? '+' : ''}${f.score_impact} PTS
+                </span>
+                <span class="text-xs font-mono text-slate-400">AegisTrust:${f.source_module || 'Core'}</span>
+              </div>
+              <div class="flex items-center gap-3 text-xs font-mono">
+                <span class="text-slate-400">Confidence: ${Math.round((f.confidence || 0.95) * 100)}%</span>
+                <span class="px-2.5 py-1 rounded bg-noir-850 border border-noir-border text-sky-400 font-semibold text-[11px]">REMEDIATION: ${f.remediation || 'MANUAL REVIEW'}</span>
+              </div>
+            </div>
+            <h3 class="text-base font-bold text-white font-mono">${f.title}</h3>
+            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-sans">${f.description}</p>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function exportStix() {
+      if (!currentReport) return;
+      const bundle = {
+        type: "bundle",
+        id: `bundle--${crypto.randomUUID()}`,
+        spec_version: "2.1",
+        objects: (currentReport.findings || []).map(f => ({
+          type: "indicator",
+          spec_version: "2.1",
+          id: `indicator--${crypto.randomUUID()}`,
+          name: f.title,
+          description: f.description,
+          pattern: `[url:value = '${currentReport.target}']`,
+          pattern_type: "stix"
+        }))
+      };
+      const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: "application/json" });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `aegistrust_findings_${(currentReport.target||'report').replace(/[^a-zA-Z0-9]/g, '_')}.json`;
+      a.click();
+    }
+  </script>
+</body>
+</html>

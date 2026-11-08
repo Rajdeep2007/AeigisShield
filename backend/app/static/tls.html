@@ -1,357 +1,363 @@
-<!DOCTYPE html>
-<html lang="en" class="dark">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>TLS & CA Trust Inspector — AegisTrust SOC</title>
-  
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
-
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-            mono: ['"JetBrains Mono"', 'monospace'],
-          },
-          colors: {
-            noir: {
-              950: '#06080d',
-              900: '#090d15',
-              850: '#0f1422',
-              800: '#161d2f',
-              750: '#1d263c',
-              700: '#26314c',
-              border: '#1f293d',
-              accent: '#38bdf8',
-              gold: '#f59e0b',
-              emerald: '#10b981',
-              rose: '#f43f5e',
-              purple: '#c084fc'
-            }
-          }
-        }
-      }
-    };
-  </script>
-
-  <style>
-    body {
-      background-color: #06080d;
-      color: #e2e8f0;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-    }
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #090d15; }
-    ::-webkit-scrollbar-thumb { background: #1f293d; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #38bdf8; }
-    .material-symbols-outlined {
-      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-      vertical-align: middle;
-    }
-    .material-symbols-fill {
-      font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
-      vertical-align: middle;
-    }
-  </style>
-</head>
-<body class="min-h-screen bg-noir-950 text-slate-100 flex flex-col lg:flex-row antialiased selection:bg-sky-500/30 selection:text-sky-200">
-
-  <!-- SIDEBAR NAVIGATION -->
-  <aside class="w-full lg:w-64 lg:min-h-screen bg-noir-900 border-b lg:border-b-0 lg:border-r border-noir-border flex-shrink-0 flex flex-col justify-between p-4 z-30">
-    <div class="flex flex-col gap-6">
-      
-      <!-- Brand Logo -->
-      <a href="/" class="flex items-center gap-3 px-2 py-1">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center shadow-lg shadow-sky-500/20 text-white">
-          <span class="material-symbols-outlined text-2xl material-symbols-fill">security</span>
-        </div>
-        <div class="flex flex-col">
-          <span class="font-bold text-base tracking-tight text-white flex items-center gap-1.5">
-            AegisTrust
-            <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-400 border border-sky-500/30">v2.4</span>
-          </span>
-          <span class="text-[11px] font-mono text-slate-400">SOC Threat Intelligence</span>
-        </div>
-      </a>
-
-      <!-- Navigation Links -->
-      <nav class="flex flex-col gap-1">
-        
-        <a href="/" class="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:text-white hover:bg-noir-800 font-medium text-sm transition-all group">
-          <span class="material-symbols-outlined text-sm text-slate-400 group-hover:text-sky-400">troubleshoot</span>
-          <span>Live SOC Console</span>
-          
-        </a>
-        <a href="/findings" class="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:text-white hover:bg-noir-800 font-medium text-sm transition-all group">
-          <span class="material-symbols-outlined text-sm text-slate-400 group-hover:text-sky-400">density_medium</span>
-          <span>Findings Matrix</span>
-          
-        </a>
-        <a href="/redirects" class="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:text-white hover:bg-noir-800 font-medium text-sm transition-all group">
-          <span class="material-symbols-outlined text-sm text-slate-400 group-hover:text-sky-400">alt_route</span>
-          <span>Redirect Timeline</span>
-          
-        </a>
-        <a href="/tls" class="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent bg-sky-500/15 text-sky-300 font-semibold border-sky-500/30 shadow-sm text-sm transition-all group">
-          <span class="material-symbols-outlined text-sm text-sky-400">verified_user</span>
-          <span>TLS & CA Inspector</span>
-          <span class="ml-auto w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        </a>
-        <a href="/graph" class="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:text-white hover:bg-noir-800 font-medium text-sm transition-all group">
-          <span class="material-symbols-outlined text-sm text-slate-400 group-hover:text-sky-400">hub</span>
-          <span>Correlation Graph</span>
-          
-        </a>
-        <a href="/web3" class="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:text-white hover:bg-noir-800 font-medium text-sm transition-all group">
-          <span class="material-symbols-outlined text-sm text-slate-400 group-hover:text-sky-400">token</span>
-          <span>Web3 Provenance</span>
-          
-        </a>
-        <a href="/sandbox" class="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:text-white hover:bg-noir-800 font-medium text-sm transition-all group">
-          <span class="material-symbols-outlined text-sm text-slate-400 group-hover:text-sky-400">science</span>
-          <span>Evaluation Sandbox</span>
-          <span class="ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded bg-noir-750 text-amber-400 border border-amber-500/20">Presets</span>
-        </a>
-      </nav>
-
-      <!-- Active Guard System Info -->
-      <div class="p-3 rounded-xl bg-noir-850 border border-noir-border flex flex-col gap-2">
-        <span class="text-[11px] font-mono text-slate-400 uppercase tracking-wider font-semibold">Active Protections</span>
-        <div class="flex items-center justify-between text-xs font-mono">
-          <span class="text-slate-400">SSRF Shield</span>
-          <span class="text-emerald-400 flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Active
-          </span>
-        </div>
-        <div class="flex items-center justify-between text-xs font-mono">
-          <span class="text-slate-400">Private CIDRs</span>
-          <span class="text-sky-400">Enforced</span>
-        </div>
-        <div class="flex items-center justify-between text-xs font-mono">
-          <span class="text-slate-400">RFC 8785 Hash</span>
-          <span class="text-purple-400">Keccak-256</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Bottom Status Card -->
-    <div class="pt-4 border-t border-noir-border flex flex-col gap-2">
-      <div class="flex items-center justify-between text-xs font-mono text-slate-400">
-        <span>Sepolia Testnet</span>
-        <span class="text-emerald-400 font-semibold">#458,922</span>
-      </div>
-      <div class="flex items-center justify-between text-xs font-mono text-slate-400">
-        <span>ReportRegistry.sol</span>
-        <span class="text-slate-300">0x3A52...23B0</span>
-      </div>
-    </div>
-  </aside>
-
-  <!-- MAIN VIEW -->
-  <div class="flex-1 flex flex-col min-w-0 z-10">
-    <header class="h-16 bg-noir-900/90 backdrop-blur-md border-b border-noir-border px-4 sm:px-6 flex items-center justify-between sticky top-0 z-20">
-      <div class="flex items-center gap-3">
-        <span class="text-xs font-mono text-slate-400">SOC Investigations</span>
-        <span class="text-slate-600">/</span>
-        <span class="text-xs font-mono text-sky-400 font-semibold">TLS & CA Trust Inspector</span>
-      </div>
-      <a href="/" class="px-3 py-1.5 rounded-lg bg-noir-800 hover:bg-noir-750 text-slate-300 text-xs font-mono border border-noir-border transition-all">&larr; Back to Console</a>
-    </header>
-
-    <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-6">
-
-    <!-- HORIZONTAL PAGE SUB-NAV (Exact Match to Design Reference) -->
-    <div class="flex items-center gap-2.5 overflow-x-auto pb-2 border-b border-noir-border scrollbar-none">
-      
-            <a href="/findings" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-noir-850 hover:bg-noir-800 text-slate-400 hover:text-white font-medium text-xs whitespace-nowrap border border-noir-border transition-all flex-shrink-0">
-              <span class="material-symbols-outlined text-sm">density_medium</span>
-              <span>Findings Matrix</span>
-              <span class="ml-1 px-1.5 py-0.2 rounded-full bg-noir-800 text-slate-400 text-[10px]">3</span>
-            </a>
-            <a href="/redirects" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-noir-850 hover:bg-noir-800 text-slate-400 hover:text-white font-medium text-xs whitespace-nowrap border border-noir-border transition-all flex-shrink-0">
-              <span class="material-symbols-outlined text-sm">alt_route</span>
-              <span>Redirect Timeline</span>
-              
-            </a>
-            <a href="/tls" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-sky-500 text-slate-950 font-bold text-xs whitespace-nowrap shadow-md transition-all flex-shrink-0">
-              <span class="material-symbols-outlined text-sm font-bold">verified_user</span>
-              <span>TLS & CA Inspector</span>
-              
-            </a>
-            <a href="/graph" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-noir-850 hover:bg-noir-800 text-slate-400 hover:text-white font-medium text-xs whitespace-nowrap border border-noir-border transition-all flex-shrink-0">
-              <span class="material-symbols-outlined text-sm">hub</span>
-              <span>Correlation Graph</span>
-              
-            </a>
-            <a href="/web3" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-noir-850 hover:bg-noir-800 text-slate-400 hover:text-white font-medium text-xs whitespace-nowrap border border-noir-border transition-all flex-shrink-0">
-              <span class="material-symbols-outlined text-sm">token</span>
-              <span>Web3 Provenance</span>
-              
-            </a>
-    </div>
-
-    <!-- CURRENT TARGET CONTEXT BAR -->
-    <div class="p-4 rounded-xl bg-noir-900 border border-noir-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-lg bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center font-bold">
-          <span class="material-symbols-outlined text-lg">language</span>
-        </div>
-        <div class="flex flex-col">
-          <span class="text-[11px] font-mono text-slate-400 uppercase">Target Under Analysis</span>
-          <span id="page-target-display" class="font-mono text-sm sm:text-base font-bold text-white break-all">paypa1-account-update.xyz</span>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-2.5">
-        <span id="page-score-badge" class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">
-          CONFIRMED MALICIOUS (75/100)
-        </span>
-        <a href="/" class="px-3 py-1.5 rounded-lg bg-noir-800 hover:bg-noir-750 text-slate-300 text-xs font-mono border border-noir-border transition-all">
-          New Scan
-        </a>
-      </div>
-    </div>
-
-      <!-- CA Distrust Alert Box -->
-      <div id="tls-compromise-banner" class="p-5 rounded-2xl bg-rose-500/15 border border-rose-500/40 flex items-start gap-4 shadow-xl animate-pulse">
-        <div class="w-10 h-10 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center flex-shrink-0">
-          <span class="material-symbols-outlined text-2xl">gpp_maybe</span>
-        </div>
-        <div class="space-y-1">
-          <h2 class="text-sm font-bold font-mono text-rose-400">CRITICAL CA COMPROMISE DETECTED (eMudhra Bugzilla #1898124)</h2>
-          <p class="text-xs text-slate-300 leading-relaxed">
-            The certificate hierarchy utilized by this endpoint correlates directly with eMudhra Sub-CA private keys generated under defective RNG routines referenced in Mozilla Security Policy Bugzilla #1898124. HTTPS provides encrypted transit only; the presence of an active SSL certificate does NOT guarantee legitimacy.
-          </p>
-        </div>
-      </div>
-
-      <!-- Certificate Deep Dive Grid -->
-      <section class="p-6 rounded-2xl bg-noir-900 border border-noir-border shadow-xl space-y-5">
-        <h3 class="text-sm font-bold font-mono text-white flex items-center gap-2">
-          <span class="material-symbols-outlined text-sky-400">security</span>
-          <span>Cryptographic Certificate Attributes</span>
-        </h3>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-          <div class="p-4 rounded-xl bg-noir-950 border border-noir-border space-y-1">
-            <span class="text-[11px] font-mono text-slate-400 uppercase">Subject Common Name (CN)</span>
-            <div id="tls-subject-cn" class="text-xs font-mono font-bold text-white break-all">paypa1-account-update.xyz</div>
-          </div>
-
-          <div class="p-4 rounded-xl bg-noir-950 border border-noir-border space-y-1">
-            <span class="text-[11px] font-mono text-slate-400 uppercase">Issuer Organization</span>
-            <div id="tls-issuer-org" class="text-xs font-mono font-bold text-rose-400 break-all">eMudhra Sub-CA 2024 (Distrusted)</div>
-          </div>
-
-          <div class="p-4 rounded-xl bg-noir-950 border border-noir-border space-y-1">
-            <span class="text-[11px] font-mono text-slate-400 uppercase">Key Algorithm & Size</span>
-            <div id="tls-key-algo" class="text-xs font-mono font-bold text-white">RSA 2048 bits</div>
-          </div>
-
-          <div class="p-4 rounded-xl bg-noir-950 border border-noir-border space-y-1">
-            <span class="text-[11px] font-mono text-slate-400 uppercase">Expiration (Not After)</span>
-            <div id="tls-validity" class="text-xs font-mono font-bold text-amber-400">2026-12-31T23:59:59Z</div>
-          </div>
-
-          <div class="p-4 rounded-xl bg-noir-950 border border-noir-border space-y-1 md:col-span-2">
-            <span class="text-[11px] font-mono text-slate-400 uppercase">SHA-256 Fingerprint Digest</span>
-            <div id="tls-fingerprint" class="text-xs font-mono text-slate-300 break-all">3f8a9e01bc24d85a02e482719ba4209c73b184a6e872d89a42e718b9c2409f81</div>
-          </div>
-
-          <div class="p-4 rounded-xl bg-noir-950 border border-noir-border space-y-1 md:col-span-3">
-            <span class="text-[11px] font-mono text-slate-400 uppercase">Subject Alternative Names (SANs)</span>
-            <div id="tls-san-list" class="text-xs font-mono text-sky-300 break-all">paypa1-account-update.xyz, *.paypa1-account-update.xyz, auth.paypa1-update.xyz</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Distrusted CAs Registry Reference Table -->
-      <section class="p-6 rounded-2xl bg-noir-900 border border-noir-border shadow-xl space-y-4">
-        <div class="flex items-center justify-between">
-          <h3 class="text-sm font-bold font-mono text-white flex items-center gap-2">
-            <span class="material-symbols-outlined text-amber-400">database</span>
-            <span>Distrusted Certificate Authorities & Incident Reference</span>
-          </h3>
-          <span class="text-xs font-mono text-slate-400">Mozilla NSS Distrust Store (28 Active Entries)</span>
-        </div>
-
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs font-mono">
-            <thead>
-              <tr class="border-b border-noir-border text-slate-400 uppercase text-[10px]">
-                <th class="py-2.5 px-3">CA Organization / Subject</th>
-                <th class="py-2.5 px-3">Incident Reference</th>
-                <th class="py-2.5 px-3">Root Cause</th>
-                <th class="py-2.5 px-3">Action Required</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-noir-border/50 text-slate-300">
-              <tr>
-                <td class="py-3 px-3 font-bold text-rose-400">eMudhra Sub-CA 2024</td>
-                <td class="py-3 px-3 text-sky-400 font-semibold">Mozilla Bugzilla #1898124</td>
-                <td class="py-3 px-3">Defective RNG Sub-CA Private Key Generation</td>
-                <td class="py-3 px-3"><span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-400">REVOKE TRUST</span></td>
-              </tr>
-              <tr>
-                <td class="py-3 px-3 font-bold text-amber-400">DigiNotar Root CA</td>
-                <td class="py-3 px-3 text-sky-400">Incident Report 2011</td>
-                <td class="py-3 px-3">Internal CA Intrusion & Fraudulent Wildcards</td>
-                <td class="py-3 px-3"><span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-400">HARD DISTRUST</span></td>
-              </tr>
-              <tr>
-                <td class="py-3 px-3 font-bold text-amber-400">WoSign / StartCom</td>
-                <td class="py-3 px-3 text-sky-400">Mozilla Policy 2016</td>
-                <td class="py-3 px-3">Backdated SHA-1 Certificates & Misissuances</td>
-                <td class="py-3 px-3"><span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-400">UNTRUSTED</span></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-    </main>
-  </div>
-  <script>
-    function getStoredReport() {
-      const stored = localStorage.getItem('aegis_current_report');
-      if (stored) {
-        try { return JSON.parse(stored); } catch(e) {}
-      }
-      return null;
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      const report = getStoredReport();
-      const target = (report && report.target) ? report.target : "paypa1-account-update.xyz";
-      document.getElementById('page-target-display').textContent = target;
-
-      if (report && report.tls_details) {
-        const tls = report.tls_details;
-        document.getElementById('tls-subject-cn').textContent = tls.subject_cn || 'Unknown';
-        document.getElementById('tls-issuer-org').textContent = tls.issuer_org || 'Unknown CA';
-        document.getElementById('tls-key-algo').textContent = `${tls.key_type || 'RSA'} ${tls.key_size_bits || 2048} bits`;
-        document.getElementById('tls-validity').textContent = tls.not_after || 'Valid';
-        document.getElementById('tls-fingerprint').textContent = tls.fingerprint_sha256 || 'N/A';
-        if (tls.sans) document.getElementById('tls-san-list').textContent = tls.sans.join(', ');
-
-        const banner = document.getElementById('tls-compromise-banner');
-        if (banner) {
-          if (tls.is_distrusted_ca) {
-            banner.classList.remove('hidden');
-          } else {
-            banner.classList.add('hidden');
-          }
-        }
-      }
-    });
-  </script>
-</body>
-</html>
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TLS & CA Trust Inspector — AegisTrust SOC</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            noir: {
+              950: '#06080d',
+              900: '#090d15',
+              850: '#0f1422',
+              800: '#161d2f',
+              750: '#1d263c',
+              700: '#26314c',
+              border: '#1f293d',
+              accent: '#38bdf8',
+              gold: '#f59e0b',
+              emerald: '#10b981',
+              rose: '#f43f5e',
+              purple: '#c084fc'
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      background-color: #06080d;
+      color: #e2e8f0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #090d15; }
+    ::-webkit-scrollbar-thumb { background: #1f293d; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #38bdf8; }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      vertical-align: middle;
+    }
+    .material-symbols-fill {
+      font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-noir-950 text-slate-100 flex flex-col lg:flex-row antialiased selection:bg-sky-500/30 selection:text-sky-200">
+
+  <!-- SIDEBAR NAVIGATION -->
+  <aside class="w-full lg:w-64 lg:min-h-screen bg-noir-900 border-b lg:border-b-0 lg:border-r border-noir-border flex-shrink-0 flex flex-col justify-between p-4 z-30">
+    <div class="flex flex-col gap-6">
+      
+      <!-- Brand Logo -->
+      <a href="/" class="flex items-center gap-3 px-2 py-1">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center shadow-lg shadow-sky-500/20 text-white">
+          <span class="material-symbols-outlined text-2xl material-symbols-fill">security</span>
+        </div>
+        <div class="flex flex-col">
+          <span class="font-bold text-base tracking-tight text-white flex items-center gap-1.5">
+            AegisTrust
+            <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-400 border border-sky-500/30">v2.4</span>
+          </span>
+          <span class="text-[11px] font-mono text-slate-400">SOC Threat Intelligence</span>
+        </div>
+      </a>
+
+      <!-- Navigation Links -->
+      <nav class="flex flex-col gap-1">
+        
+        <a href="/consumer" class="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-amber-300 hover:text-white hover:bg-noir-800 font-medium text-sm transition-all group">
+          <span class="material-symbols-outlined text-sm text-amber-400 group-hover:scale-110 transition-transform">person</span>
+          <span>Everyday User Mode</span>
+          <span class="ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">Simple</span>
+        </a>
+
+        <a href="/" class="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:text-white hover:bg-noir-800 font-medium text-sm transition-all group">
+          <span class="material-symbols-outlined text-sm text-slate-400 group-hover:text-sky-400">troubleshoot</span>
+          <span>Live SOC Console</span>
+          
+        </a>
+        <a href="/findings" class="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:text-white hover:bg-noir-800 font-medium text-sm transition-all group">
+          <span class="material-symbols-outlined text-sm text-slate-400 group-hover:text-sky-400">density_medium</span>
+          <span>Findings Matrix</span>
+          
+        </a>
+        <a href="/redirects" class="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:text-white hover:bg-noir-800 font-medium text-sm transition-all group">
+          <span class="material-symbols-outlined text-sm text-slate-400 group-hover:text-sky-400">alt_route</span>
+          <span>Redirect Timeline</span>
+          
+        </a>
+        <a href="/tls" class="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent bg-sky-500/15 text-sky-300 font-semibold border-sky-500/30 shadow-sm text-sm transition-all group">
+          <span class="material-symbols-outlined text-sm text-sky-400">verified_user</span>
+          <span>TLS & CA Inspector</span>
+          <span class="ml-auto w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        </a>
+        <a href="/graph" class="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:text-white hover:bg-noir-800 font-medium text-sm transition-all group">
+          <span class="material-symbols-outlined text-sm text-slate-400 group-hover:text-sky-400">hub</span>
+          <span>Correlation Graph</span>
+          
+        </a>
+        <a href="/web3" class="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:text-white hover:bg-noir-800 font-medium text-sm transition-all group">
+          <span class="material-symbols-outlined text-sm text-slate-400 group-hover:text-sky-400">token</span>
+          <span>Web3 Provenance</span>
+          
+        </a>
+        <a href="/sandbox" class="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-slate-400 hover:text-white hover:bg-noir-800 font-medium text-sm transition-all group">
+          <span class="material-symbols-outlined text-sm text-slate-400 group-hover:text-sky-400">science</span>
+          <span>Evaluation Sandbox</span>
+          <span class="ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded bg-noir-750 text-amber-400 border border-amber-500/20">Presets</span>
+        </a>
+      </nav>
+
+      <!-- Active Guard System Info -->
+      <div class="p-3 rounded-xl bg-noir-850 border border-noir-border flex flex-col gap-2">
+        <span class="text-[11px] font-mono text-slate-400 uppercase tracking-wider font-semibold">Active Protections</span>
+        <div class="flex items-center justify-between text-xs font-mono">
+          <span class="text-slate-400">SSRF Shield</span>
+          <span class="text-emerald-400 flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Active
+          </span>
+        </div>
+        <div class="flex items-center justify-between text-xs font-mono">
+          <span class="text-slate-400">Private CIDRs</span>
+          <span class="text-sky-400">Enforced</span>
+        </div>
+        <div class="flex items-center justify-between text-xs font-mono">
+          <span class="text-slate-400">RFC 8785 Hash</span>
+          <span class="text-purple-400">Keccak-256</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Status Card -->
+    <div class="pt-4 border-t border-noir-border flex flex-col gap-2">
+      <div class="flex items-center justify-between text-xs font-mono text-slate-400">
+        <span>Sepolia Testnet</span>
+        <span class="text-emerald-400 font-semibold">#458,922</span>
+      </div>
+      <div class="flex items-center justify-between text-xs font-mono text-slate-400">
+        <span>ReportRegistry.sol</span>
+        <span class="text-slate-300">0x3A52...23B0</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN VIEW -->
+  <div class="flex-1 flex flex-col min-w-0 z-10">
+    <header class="h-16 bg-noir-900/90 backdrop-blur-md border-b border-noir-border px-4 sm:px-6 flex items-center justify-between sticky top-0 z-20">
+      <div class="flex items-center gap-3">
+        <span class="text-xs font-mono text-slate-400">SOC Investigations</span>
+        <span class="text-slate-600">/</span>
+        <span class="text-xs font-mono text-sky-400 font-semibold">TLS & CA Trust Inspector</span>
+      </div>
+      <a href="/" class="px-3 py-1.5 rounded-lg bg-noir-800 hover:bg-noir-750 text-slate-300 text-xs font-mono border border-noir-border transition-all">&larr; Back to Console</a>
+    </header>
+
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-6">
+
+    <!-- HORIZONTAL PAGE SUB-NAV (Exact Match to Design Reference) -->
+    <div class="flex items-center gap-2.5 overflow-x-auto pb-2 border-b border-noir-border scrollbar-none">
+      
+            <a href="/findings" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-noir-850 hover:bg-noir-800 text-slate-400 hover:text-white font-medium text-xs whitespace-nowrap border border-noir-border transition-all flex-shrink-0">
+              <span class="material-symbols-outlined text-sm">density_medium</span>
+              <span>Findings Matrix</span>
+              <span class="ml-1 px-1.5 py-0.2 rounded-full bg-noir-800 text-slate-400 text-[10px]">3</span>
+            </a>
+            <a href="/redirects" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-noir-850 hover:bg-noir-800 text-slate-400 hover:text-white font-medium text-xs whitespace-nowrap border border-noir-border transition-all flex-shrink-0">
+              <span class="material-symbols-outlined text-sm">alt_route</span>
+              <span>Redirect Timeline</span>
+              
+            </a>
+            <a href="/tls" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-sky-500 text-slate-950 font-bold text-xs whitespace-nowrap shadow-md transition-all flex-shrink-0">
+              <span class="material-symbols-outlined text-sm font-bold">verified_user</span>
+              <span>TLS & CA Inspector</span>
+              
+            </a>
+            <a href="/graph" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-noir-850 hover:bg-noir-800 text-slate-400 hover:text-white font-medium text-xs whitespace-nowrap border border-noir-border transition-all flex-shrink-0">
+              <span class="material-symbols-outlined text-sm">hub</span>
+              <span>Correlation Graph</span>
+              
+            </a>
+            <a href="/web3" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-noir-850 hover:bg-noir-800 text-slate-400 hover:text-white font-medium text-xs whitespace-nowrap border border-noir-border transition-all flex-shrink-0">
+              <span class="material-symbols-outlined text-sm">token</span>
+              <span>Web3 Provenance</span>
+              
+            </a>
+    </div>
+
+    <!-- CURRENT TARGET CONTEXT BAR -->
+    <div class="p-4 rounded-xl bg-noir-900 border border-noir-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center font-bold">
+          <span class="material-symbols-outlined text-lg">language</span>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-[11px] font-mono text-slate-400 uppercase">Target Under Analysis</span>
+          <span id="page-target-display" class="font-mono text-sm sm:text-base font-bold text-white break-all">paypa1-account-update.xyz</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2.5">
+        <span id="page-score-badge" class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">
+          CONFIRMED MALICIOUS (75/100)
+        </span>
+        <a href="/" class="px-3 py-1.5 rounded-lg bg-noir-800 hover:bg-noir-750 text-slate-300 text-xs font-mono border border-noir-border transition-all">
+          New Scan
+        </a>
+      </div>
+    </div>
+
+      <!-- CA Distrust Alert Box -->
+      <div id="tls-compromise-banner" class="p-5 rounded-2xl bg-rose-500/15 border border-rose-500/40 flex items-start gap-4 shadow-xl animate-pulse">
+        <div class="w-10 h-10 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center flex-shrink-0">
+          <span class="material-symbols-outlined text-2xl">gpp_maybe</span>
+        </div>
+        <div class="space-y-1">
+          <h2 class="text-sm font-bold font-mono text-rose-400">CRITICAL CA COMPROMISE DETECTED (eMudhra Bugzilla #1898124)</h2>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            The certificate hierarchy utilized by this endpoint correlates directly with eMudhra Sub-CA private keys generated under defective RNG routines referenced in Mozilla Security Policy Bugzilla #1898124. HTTPS provides encrypted transit only; the presence of an active SSL certificate does NOT guarantee legitimacy.
+          </p>
+        </div>
+      </div>
+
+      <!-- Certificate Deep Dive Grid -->
+      <section class="p-6 rounded-2xl bg-noir-900 border border-noir-border shadow-xl space-y-5">
+        <h3 class="text-sm font-bold font-mono text-white flex items-center gap-2">
+          <span class="material-symbols-outlined text-sky-400">security</span>
+          <span>Cryptographic Certificate Attributes</span>
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+          <div class="p-4 rounded-xl bg-noir-950 border border-noir-border space-y-1">
+            <span class="text-[11px] font-mono text-slate-400 uppercase">Subject Common Name (CN)</span>
+            <div id="tls-subject-cn" class="text-xs font-mono font-bold text-white break-all">paypa1-account-update.xyz</div>
+          </div>
+
+          <div class="p-4 rounded-xl bg-noir-950 border border-noir-border space-y-1">
+            <span class="text-[11px] font-mono text-slate-400 uppercase">Issuer Organization</span>
+            <div id="tls-issuer-org" class="text-xs font-mono font-bold text-rose-400 break-all">eMudhra Sub-CA 2024 (Distrusted)</div>
+          </div>
+
+          <div class="p-4 rounded-xl bg-noir-950 border border-noir-border space-y-1">
+            <span class="text-[11px] font-mono text-slate-400 uppercase">Key Algorithm & Size</span>
+            <div id="tls-key-algo" class="text-xs font-mono font-bold text-white">RSA 2048 bits</div>
+          </div>
+
+          <div class="p-4 rounded-xl bg-noir-950 border border-noir-border space-y-1">
+            <span class="text-[11px] font-mono text-slate-400 uppercase">Expiration (Not After)</span>
+            <div id="tls-validity" class="text-xs font-mono font-bold text-amber-400">2026-12-31T23:59:59Z</div>
+          </div>
+
+          <div class="p-4 rounded-xl bg-noir-950 border border-noir-border space-y-1 md:col-span-2">
+            <span class="text-[11px] font-mono text-slate-400 uppercase">SHA-256 Fingerprint Digest</span>
+            <div id="tls-fingerprint" class="text-xs font-mono text-slate-300 break-all">3f8a9e01bc24d85a02e482719ba4209c73b184a6e872d89a42e718b9c2409f81</div>
+          </div>
+
+          <div class="p-4 rounded-xl bg-noir-950 border border-noir-border space-y-1 md:col-span-3">
+            <span class="text-[11px] font-mono text-slate-400 uppercase">Subject Alternative Names (SANs)</span>
+            <div id="tls-san-list" class="text-xs font-mono text-sky-300 break-all">paypa1-account-update.xyz, *.paypa1-account-update.xyz, auth.paypa1-update.xyz</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Distrusted CAs Registry Reference Table -->
+      <section class="p-6 rounded-2xl bg-noir-900 border border-noir-border shadow-xl space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm font-bold font-mono text-white flex items-center gap-2">
+            <span class="material-symbols-outlined text-amber-400">database</span>
+            <span>Distrusted Certificate Authorities & Incident Reference</span>
+          </h3>
+          <span class="text-xs font-mono text-slate-400">Mozilla NSS Distrust Store (28 Active Entries)</span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs font-mono">
+            <thead>
+              <tr class="border-b border-noir-border text-slate-400 uppercase text-[10px]">
+                <th class="py-2.5 px-3">CA Organization / Subject</th>
+                <th class="py-2.5 px-3">Incident Reference</th>
+                <th class="py-2.5 px-3">Root Cause</th>
+                <th class="py-2.5 px-3">Action Required</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-noir-border/50 text-slate-300">
+              <tr>
+                <td class="py-3 px-3 font-bold text-rose-400">eMudhra Sub-CA 2024</td>
+                <td class="py-3 px-3 text-sky-400 font-semibold">Mozilla Bugzilla #1898124</td>
+                <td class="py-3 px-3">Defective RNG Sub-CA Private Key Generation</td>
+                <td class="py-3 px-3"><span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-400">REVOKE TRUST</span></td>
+              </tr>
+              <tr>
+                <td class="py-3 px-3 font-bold text-amber-400">DigiNotar Root CA</td>
+                <td class="py-3 px-3 text-sky-400">Incident Report 2011</td>
+                <td class="py-3 px-3">Internal CA Intrusion & Fraudulent Wildcards</td>
+                <td class="py-3 px-3"><span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-400">HARD DISTRUST</span></td>
+              </tr>
+              <tr>
+                <td class="py-3 px-3 font-bold text-amber-400">WoSign / StartCom</td>
+                <td class="py-3 px-3 text-sky-400">Mozilla Policy 2016</td>
+                <td class="py-3 px-3">Backdated SHA-1 Certificates & Misissuances</td>
+                <td class="py-3 px-3"><span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-400">UNTRUSTED</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script>
+    function getStoredReport() {
+      const stored = localStorage.getItem('aegis_current_report');
+      if (stored) {
+        try { return JSON.parse(stored); } catch(e) {}
+      }
+      return null;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const report = getStoredReport();
+      const target = (report && report.target) ? report.target : "paypa1-account-update.xyz";
+      document.getElementById('page-target-display').textContent = target;
+
+      if (report && report.tls_details) {
+        const tls = report.tls_details;
+        document.getElementById('tls-subject-cn').textContent = tls.subject_cn || 'Unknown';
+        document.getElementById('tls-issuer-org').textContent = tls.issuer_org || 'Unknown CA';
+        document.getElementById('tls-key-algo').textContent = `${tls.key_type || 'RSA'} ${tls.key_size_bits || 2048} bits`;
+        document.getElementById('tls-validity').textContent = tls.not_after || 'Valid';
+        document.getElementById('tls-fingerprint').textContent = tls.fingerprint_sha256 || 'N/A';
+        if (tls.sans) document.getElementById('tls-san-list').textContent = tls.sans.join(', ');
+
+        const banner = document.getElementById('tls-compromise-banner');
+        if (banner) {
+          if (tls.is_distrusted_ca) {
+            banner.classList.remove('hidden');
+          } else {
+            banner.classList.add('hidden');
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

@@ -100,6 +100,14 @@ def serve_dashboard():
     return {"message": "AegisTrust API Active. Access /docs for OpenAPI documentation."}
 
 
+@app.get("/consumer")
+def serve_consumer():
+    consumer_file = os.path.join(static_dir, "consumer.html")
+    if os.path.exists(consumer_file):
+        return FileResponse(consumer_file)
+    return FileResponse(os.path.join(static_dir, "index.html"))
+
+
 @app.get("/sandbox")
 def serve_sandbox():
     sandbox_file = os.path.join(static_dir, "sandbox.html")
