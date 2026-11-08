@@ -230,40 +230,43 @@ class URLAnalyzer:
         if not exact_brand_match:
             tokens = list(set([domain_name] + domain_name.split("-")))
             for brand in self.top_brands:
-                target_word = brand["keywords"][0].lower()
                 found_typo = False
-                for token in tokens:
-                    if token == target_word and domain_name != target_word:
-                        # Brand name combined with hyphenated pretext in untrusted registrable domain (e.g. paypal-security-alert.info)
-                        findings.append(Finding(
-                            id="F-BRAND-COMBO-SPOOF",
-                            module="lexical",
-                            title="Protected Brand Name Embedded in Untrusted Domain",
-                            severity=Severity.HIGH,
-                            weight=30,
-                            evidence=f"Registrable domain '{registered_domain}' embeds protected brand token '{target_word}' ({brand['name']}) alongside pretext words outside official '{brand['domain']}'.",
-                            source="AegisTrust:BrandComboAnalyzer",
-                            remediation=f"Do not trust compound domains mimicking '{brand['domain']}'."
-                        ))
-                        found_typo = True
-                        break
+                for kw in brand.get("keywords", []):
+                    target_word = kw.lower()
+                    for token in tokens:
+                        if token == target_word and domain_name != target_word:
+                            # Brand name combined with hyphenated pretext in untrusted registrable domain (e.g. paypal-security-alert.info, onlinesbi-kyc-update.com)
+                            findings.append(Finding(
+                                id="F-BRAND-COMBO-SPOOF",
+                                module="lexical",
+                                title="Protected Brand Name Embedded in Untrusted Domain",
+                                severity=Severity.HIGH,
+                                weight=35,
+                                evidence=f"Registrable domain '{registered_domain}' embeds protected brand token '{target_word}' ({brand['name']}) alongside pretext words outside official '{brand['domain']}'.",
+                                source="AegisTrust:BrandComboAnalyzer",
+                                remediation=f"Do not trust compound domains mimicking '{brand['domain']}'."
+                            ))
+                            found_typo = True
+                            break
 
-                    dist = levenshtein_distance(token, target_word)
-                    de_leeted = token.translate(LEET_SUBSTITUTIONS).replace("rn", "m")
-                    is_leet_match = (de_leeted == target_word and token != target_word)
-                    if is_leet_match or (dist in (1, 2) and abs(len(token) - len(target_word)) <= 2 and len(target_word) >= 4):
-                        effective_dist = 1 if is_leet_match else dist
-                        findings.append(Finding(
-                            id="F-TYPOSQUAT",
-                            module="lexical",
-                            title="Potential Brand Typosquatting Detected",
-                            severity=Severity.HIGH if effective_dist == 1 else Severity.MEDIUM,
-                            weight=35 if effective_dist == 1 else 20,
-                            evidence=f"Domain token '{token}' in '{domain_name}' has an edit distance of {effective_dist} from targeted brand '{brand['name']}' ({target_word}).",
-                            source="AegisTrust:LevenshteinAnalyzer",
-                            remediation=f"Verify if you intended to visit official '{brand['domain']}' instead of this lookalike."
-                        ))
-                        found_typo = True
+                        dist = levenshtein_distance(token, target_word)
+                        de_leeted = token.translate(LEET_SUBSTITUTIONS).replace("rn", "m")
+                        is_leet_match = (de_leeted == target_word and token != target_word)
+                        if is_leet_match or (dist in (1, 2) and abs(len(token) - len(target_word)) <= 2 and len(target_word) >= 4):
+                            effective_dist = 1 if is_leet_match else dist
+                            findings.append(Finding(
+                                id="F-TYPOSQUAT",
+                                module="lexical",
+                                title="Potential Brand Typosquatting Detected",
+                                severity=Severity.HIGH if effective_dist == 1 else Severity.MEDIUM,
+                                weight=35 if effective_dist == 1 else 20,
+                                evidence=f"Domain token '{token}' in '{domain_name}' has an edit distance of {effective_dist} from targeted brand '{brand['name']}' ({target_word}).",
+                                source="AegisTrust:LevenshteinAnalyzer",
+                                remediation=f"Verify if you intended to visit official '{brand['domain']}' instead of this lookalike."
+                            ))
+                            found_typo = True
+                            break
+                    if found_typo:
                         break
                 if found_typo:
                     break

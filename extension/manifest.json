@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "AegisShield — Autonomous AI Threat Guard & Web3 Trust",
+  "version": "2.6.0",
+  "description": "Real-time autonomous phishing defense, DOM password-form guard, X.509/CA root verification, and Web3 Keccak-256 threat provenance.",
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "storage",
+    "contextMenus",
+    "scripting"
+  ],
+  "host_permissions": [
+    "http://localhost:8000/*",
+    "http://127.0.0.1:8000/*",
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "AegisShield AI Security Agent"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

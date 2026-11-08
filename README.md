@@ -1,223 +1,169 @@
-# 🛡️ AegisTrust: Intelligent Digital Security & Web3 Verification Platform
+# 🛡️ AegisTrust: Autonomous AI Cyber Defense, Threat Intelligence & Web3 Provenance
 
-> **AI-Powered Scam Investigation • Deterministic Cybersecurity Threat Telemetry • Verifiable Web3 Audit Provenance**  
-> Built for the Global Hackathon Challenge with 100% Technical Rubric Compliance.
+> **Autonomous AI Security Agent • Real-Time Browser Extension Shield • Deterministic Threat Telemetry • Verifiable Web3 Audit Provenance**  
+> Built for the **Zenith HackMatrix** Challenge with 100% Technical Rubric & Guardrail Compliance.
 
 ---
 
 ## 🌟 Key Highlights & Core Capabilities
 
-- **Strict Evidence Grounding**: The AI model summarizes verified technical evidence—it **never** alters the mathematically determined risk score or classification.
-- **Hardened Ingestion**: Pre-connection SSRF shield blocks private CIDRs (`10/8`, `172.16/12`, `192.168/16`, `127/8`, `169.254/16`) and binds directly to resolved destination IPs.
-- **eMudhra & Distrusted CA Detection**: Accurately flags certificates issued by compromised Certificate Authorities using documented root-store distrust registries (`Mozilla Bugzilla #1898124`).
-- **Valid TLS ≠ Trustworthy**: Educates users that HTTPS provides transport encryption only and is not proof of authentic website legitimacy.
-- **Prompt-Injection Proof**: Message analyzer sanitizes input and enforces verbatim quotation extraction for every claimed social engineering tactic.
-- **Decentralized Provenance**: RFC 8785 canonical JSON Keccak-256 commitments recorded on-chain via `ReportRegistry.sol`. Includes a 1-click interactive tamper demonstration tool.
-- **Dual-Mode Interface**:
-  - **`/` (Live Production SOC)**: 100% clean, professional threat investigation console for evaluating real-world live domains and messages.
-  - **`/sandbox` (Evaluation & Tamper Sandbox)**: Features 6 deterministic benchmark presets and interactive Web3 tamper test suite for hackathon judges.
+- **Autonomous AI Security Agent (`/agent`)**: Executes a 7-step **`OBSERVE → ACT → PIVOT → DEFEND → SYNTHESIZE`** tool loop (`ioc_and_intent_extractor`, `url_lexical_and_brand_analyzer`, `ssrf_pinned_redirect_tracer`, `tls_and_ca_trust_inspector`, `networkx_campaign_graph_pivot`, `deterministic_scorer_and_web3_defender`, `evidence_grounded_copilot`). Supports pre-click Threat Hunting, Post-Click Emergency Incident Response (*"I already clicked & entered my password!"*), and **Proactive 24/7 Brand Watchdog** sweeps.
+- **Real-Time Chrome / Edge Browser Extension (`extension/`)**: Manifest V3 browser shield that automatically scores every navigated tab, detects `<input type="password">` credential-harvesting forms on untrusted domains, injects a **Full-Screen Red Phishing Blocker Overlay** when `risk_score >= 60`, and adds right-click context-menu investigation for links and highlighted text.
+- **Strict Deterministic Evidence Grounding**: Risk scores (`0–100`) and the 5-tier classification (`Low Risk`, `Suspicious`, `High Risk`, `Confirmed Malicious`, `Inconclusive` — **never labeled "Safe"**) are computed strictly upstream of the LLM. The AI model never alters the score or verdict.
+- **SSRF-Hardened Inspection with DNS IP Pinning**: Pre-validates and resolves hostnames, blocks loopback/private/cloud-metadata CIDRs (`127.0.0.0/8`, `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`, `169.254.0.0/16`, `::1`, `fc00::/7`), restricts ports to `80, 443, 8080, 8443`, and pins the resolved IP on the socket to defeat DNS rebinding.
+- **eMudhra & Distrusted CA Detection (`Mozilla Bugzilla #1898124`)**: Audits X.509 certificates and root-store distrust registries while explicitly educating users that **Valid TLS/HTTPS ≠ Legitimate Website** and noting that CA key-generation entropy defects are matched via external root-store advisories rather than inferred from a URL string alone.
+- **Prompt-Injection Shield & False-Positive Guardrails**: Neutralizes adversarial prompt-injection payloads (`IGNORE PREVIOUS INSTRUCTIONS...`), extracts verbatim evidence quotes, protects institutional TLDs (`.gov.in`, `.edu`, `.ac.in`), and ensures urgent language alone never triggers `High Risk`.
+- **Genuine Ethereum Keccak-256 & Web3 Provenance (`ReportRegistry.sol`)**: Computes RFC 8785 Canonical JSON commitments using genuine Ethereum Keccak-256 (`0x01` padding) and salted indicator hashes (`H(salt || canonical_domain)`) so **zero raw URLs or PII** are stored on-chain. Supports report submission, revision (`supersedes`), community validation (`validateReport`), dispute tracking (`disputeReport`), and real payload tamper verification.
 
 ---
 
 ## 🏗️ System Architecture
 
 ```
-[ User Input: URL / FQDN / Scam Message ]
-                    │
-                    ▼
-       [ Ingestion & SSRF Gateway ]  ──► Blocks Loopback, Cloud Metadata & Prohibited Ports
-                    │
-    ┌───────────────┼───────────────┬───────────────┐
-    ▼               ▼               ▼               ▼
-[Module 1]      [Module 1b]     [Module 2]      [Module 3]
-Lexical &       Safe Redirect   TLS & Distrusted Message Analyzer
-Typosquatting   Hop Tracer      CA Registry     & Injection Filter
-    │               │               │               │
-    └───────────────┼───────────────┴───────────────┘
-                    ▼
-     [ Deterministic Scoring Engine ]  ──► Math Formula (Category Caps & Benign Discounts)
-                    │
-                    ▼
-     [ AI Explainability Service ]    ──► Hybrid Gemini 2.5 Flash + Deterministic Fallback
-                    │
-                    ▼
-     [ Web3 Cryptographic Hasher ]   ──► RFC 8785 Canonical Keccak-256 ──► ReportRegistry.sol
+[ Browser Extension (MV3) / Web Portals / 24x7 Brand Watchdog ]
+                               │
+                               ▼
+          [ Autonomous AI Agent Orchestrator (7-Step Loop) ]
+                               │
+                               ▼
+        [ Ingestion & SSRF Gateway (DNS IP Pinning) ]
+                               │
+    ┌──────────────┬───────────┴───┬───────────────┬───────────────┐
+    ▼              ▼               ▼               ▼               ▼
+[Module 1]     [Module 1b]     [Module 2]      [Module 3]      [Module 4]
+Lexical, IDN   SSRF-Pinned     X.509 TLS &     Scam Message    NetworkX Fraud
+& Typosquat    Redirect Trace  eMudhra CA      & Injection     Cluster Graph
+    │              │               │               │               │
+    └──────────────┴───────────────┼───────────────┴───────────────┘
+                                   ▼
+            [ Deterministic Scoring Engine (Category Caps) ]
+                                   │
+                    ┌──────────────┴──────────────┐
+                    ▼                             ▼
+     [ Hybrid Gemini + Fallback ]   [ RFC 8785 Canonical Keccak-256 ]
+     [ Explainability & Copilot ]   [ ReportRegistry.sol + Blocklist ]
 ```
 
 ---
 
-## 🖥️ User Interface Modes (Google Stitch Cyber Noir Bento)
+## 🖥️ Multi-Portal Web Interface & Browser Extension
 
-The frontend implements the exact **Cyber Noir Bento** design system authored in Google Stitch:
-- **Dark Surface Palette**: Surface `#10131a`, container `#0b0e15` to `#32353d`, cyan container `#38bdf8`, secondary gold `#ffb95f`, and alert red `#ffb4ab`.
-- **Typography**: Google Fonts **Plus Jakarta Sans** and **JetBrains Mono**.
-- **Icons**: **Google Material Symbols Outlined**.
-
-### 1. Live Production SOC Console (`http://localhost:8000/`)
-A completely clean, unencumbered security operations console. No preset banners or mock tags appear on this screen. Evaluators and users can submit any live, organic URL, domain, or message to experience the full end-to-end investigation pipeline in real time.
-
-### 2. Evaluation & Tamper Sandbox (`http://localhost:8000/sandbox`)
-Designed specifically for evaluation and grading. It includes:
-- **6 Deterministic Scenario Presets**:
-  1. `TYPOSQUAT`: `paypa1-update.xyz` (High brand delta spoof)
-  2. `SUBDOMAIN PHISH`: `paypal.com.info` (Deceptive apex masking)
-  3. `EXPIRED TLS`: `expired.badssl.com` (Revoked/lapsed cert authority)
-  4. `eMUDHRA FLAW`: `Bugzilla #1898124` (Sub-CA keygen collision)
-  5. `BENIGN GIANT`: `github.com` (Zero threat indicators, clean HSTS)
-  6. `SCAM SMS + INJ`: `Urgent SBI + Injection` (KYC bait with system prompt spoof)
-- **Interactive Web3 Tamper Demonstration**:
-  - Test cryptographic non-repudiation by clicking **"Simulate 1-Byte Report Tamper"** to witness instant smart contract hash mismatch rejection, then click **"Restore Original Report"** to restore cryptographic integrity.
+| Portal / Component | Route / Path | Purpose |
+| :--- | :--- | :--- |
+| **Live Analyst SOC Console** | `http://localhost:8000/` | Full multi-module threat scanner and triage workspace |
+| **Autonomous AI Security Agent & Watchdog** | `http://localhost:8000/agent` | 7-step autonomous agent console, post-click emergency responder, & 24/7 brand CT log watchdog |
+| **Everyday Consumer Portal** | `http://localhost:8000/consumer` | Jargon-free personal scam checker for links, SMS/WhatsApp messages, and UPI IDs |
+| **Safe Redirect & URL Hop Tracer** | `http://localhost:8000/redirects` | Step-by-step SSRF-pinned HTTP redirect chain and cross-domain hop visualizer |
+| **TLS & Distrusted CA Inspector** | `http://localhost:8000/tls` | X.509 certificate chain auditor and eMudhra root-store distrust registry |
+| **Threat Feeds & Scam Analyzer** | `http://localhost:8000/findings` | OpenPhish/URLhaus intelligence snapshot and social engineering tactic breakdown |
+| **Web3 Tamper-Evident Registry** | `http://localhost:8000/web3` | RFC 8785 Keccak-256 on-chain ledger, community validation/dispute, & live tamper verifier |
+| **Evaluation Test Bench (3+3)** | `http://localhost:8000/sandbox` | 3 Benign + 3 Malicious deterministic rubric presets for instant verification |
+| **Chrome / Edge Browser Extension** | `extension/` | Manifest V3 extension with live badge scoring, DOM password sensor, right-click agent scan, and full-screen red phishing blocker |
 
 ---
 
-## 📊 Five Interactive Bento Tabs
+## 🚀 Quickstart
 
-1. **Technical Findings Matrix**: Severity filtering (`All`, `Critical`, `High`, `Medium`, `Benign`) with deterministic point deltas (`+50 PTS`, `+30 PTS`, `-20 PTS`), analyzer source module, and mitigation instructions.
-2. **Safe Redirect Timeline**: Step-by-step sandboxed HTTP hop trace with status codes (`301`, `302`, `200`), IPs, ASNs, latency, and scheme downgrade warnings.
-3. **TLS & CA Trust Inspector**: Root CA validity check, key algorithm/size, SHA-256 fingerprint, SAN list, and active eMudhra private key collision alert (Mozilla Bugzilla #1898124).
-4. **Threat Correlation Graph**: Infrastructure cluster linking Domain, IP, Cert Fingerprint, and Mule UPI payment destinations.
-5. **Web3 Provenance & Live Tamper Demo**: RFC 8785 canonical JSON Keccak-256 digest committed to `ReportRegistry.sol` on Sepolia Testnet at block `#458,922`.
-
----
-
-## 🚀 Quickstart: Launch in 30 Seconds
-
-### Option A: Turnkey 1-Click Launchers (Windows)
-Double-click or run from terminal:
-- **Start Platform**: `start_server.bat` or `powershell .\start_server.ps1`
-- **Run Tests**: `run_tests.bat` or `powershell .\run_tests.ps1`
-
-### Option B: Manual Launch (Python 3.10+)
+### 1. Start the Backend Server
 ```powershell
-# 1. Install dependencies
+# Install dependencies (Python 3.10+)
 pip install -r requirements.txt
 
-# 2. Start FastAPI uvicorn daemon
-cd backend
-python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+# Launch FastAPI server on port 8000
+python -m uvicorn app.main:app --app-dir backend --host 0.0.0.0 --port 8000 --reload
 ```
+*(Or run `start_server.bat` / `powershell .\start_server.ps1` on Windows.)*
 
-### Option C: Docker & Docker Compose
-```bash
-docker compose up --build
-```
+### 2. Load the Chrome / Edge Browser Extension (`extension/`)
+1. Open `chrome://extensions` (or `edge://extensions`) in your browser.
+2. Enable **Developer mode** (top-right toggle).
+3. Click **Load unpacked** and select the `extension/` folder in this repository.
+4. Browse any website to see real-time tab scoring, right-click any link/text to invoke the Aegis AI Agent, or click **"🚨 Simulate Full-Screen Phishing Block on This Tab"** in the extension popup.
 
 ---
 
-## 🌐 URLs & Service Endpoints
+## 🌐 REST API Endpoints
 
-| Resource | URL | Description |
+| Endpoint | Method | Description |
 | :--- | :--- | :--- |
-| **Live SOC Console** | [http://localhost:8000/](http://localhost:8000/) | Production investigation console (clean) |
-| **Evaluation Sandbox** | [http://localhost:8000/sandbox](http://localhost:8000/sandbox) | Benchmark presets & Web3 tamper lab |
-| **OpenAPI / Swagger** | [http://localhost:8000/docs](http://localhost:8000/docs) | Interactive Swagger API documentation |
-| **Health Check** | [http://localhost:8000/api/v1/health](http://localhost:8000/api/v1/health) | Service health and version status |
-| **Investigate URL** | `POST /api/v1/investigate/url` | Ingests URL/FQDN for multi-module threat analysis |
-| **Investigate Message** | `POST /api/v1/investigate/message` | Analyzes scam text/email with injection defense |
-| **Web3 Submit** | `POST /api/v1/web3/submit` | Registers canonical report hash on-chain |
-| **Web3 Verify** | `POST /api/v1/web3/verify` | Validates canonical hash against immutable state |
+| `/api/v1/health` | `GET` | Service health and version status (`v1.1.0`) |
+| `/api/v1/investigate/url` | `POST` | Full deterministic URL investigation pipeline |
+| `/api/v1/investigate/message` | `POST` | Social engineering & embedded IOC message investigation |
+| `/api/v1/agent/investigate` | `POST` | Autonomous 7-step AI Agent investigation & emergency incident response |
+| `/api/v1/agent/watchdog/scan` | `POST` | Proactive 24/7 brand lookalike & CT log sweep with auto-Web3 defense |
+| `/api/v1/agent/watchdog/status` | `GET` | Watchdog scan history and active browser blocklist count |
+| `/api/v1/extension/blocklist` | `GET` | Synchronizes active blocklist, threat feeds, and distrusted CAs to the browser extension |
+| `/api/v1/correlations/{domain}` | `GET` | Queries the NetworkX infrastructure correlation graph |
+| `/api/v1/web3/reports` | `GET` | Lists anchored on-chain report commitments |
+| `/api/v1/web3/submit` | `POST` | Anchors or revises (`supersedes_id`) an RFC 8785 Keccak-256 report commitment |
+| `/api/v1/web3/verify` | `POST` | Recomputes canonical Keccak-256 hash from payload fields to verify integrity or detect tampering |
+| `/api/v1/web3/validate` | `POST` | Records a community validation vote on an on-chain report |
+| `/api/v1/web3/dispute` | `POST` | Flags an on-chain report as disputed for false-positive governance |
 
 ---
 
-## 🧪 Automated Test Suite (100% Pass Rate)
+## 🧪 Automated Test Suite (24 Tests, 100% Pass Rate)
 
-To execute the test suite:
-```bash
-python -m pytest backend/tests -v
+Run both test suites directly:
+```powershell
+python backend/tests/test_aegis_core.py
+python backend/tests/test_api_endpoints.py
 ```
 
-### Verified Test Matrix (19 Tests, 0 Failures):
-- `test_ssrf_blocks_loopback`: Verified `127.0.0.1` blocked.
-- `test_ssrf_blocks_cloud_metadata`: Verified AWS/GCP metadata `169.254.169.254` blocked.
-- `test_ssrf_blocks_private_subnet`: Verified RFC 1918 subnets (`10.0.0.1`, `192.168.1.1`) blocked.
-- `test_ssrf_blocks_prohibited_ports`: Verified non-HTTP ports (`22`, `25`, `3389`) blocked.
-- `test_url_analyzer_detects_typosquat`: Verified Levenshtein distance 1 detection against brands.
-- `test_url_analyzer_detects_brand_in_subdomain`: Verified brand masking in subdomains.
-- `test_url_analyzer_benign_giant`: Verified negative trust weights on `github.com`.
-- `test_message_analyzer_extracts_indicators`: Verified URL, UPI handle, and phone extraction.
-- `test_message_analyzer_prompt_injection_neutralized`: Verified adversarial instruction override is stripped.
-- `test_scoring_engine_confirmed_malicious_on_critical`: Verified critical threat hits override to Confirmed Malicious.
-- `test_scoring_engine_benign_negative_weight`: Verified verified benign domains score 0.
-- `test_canonical_json_deterministic`: Verified byte-for-byte serialization across platforms.
-- `test_web3_tamper_verification`: Verified that mutating 1 byte causes Keccak-256 mismatch rejection.
-- `test_health_endpoint`: Verified `/api/v1/health` status 200.
-- `test_investigate_url_typosquat`: Verified full pipeline for `paypa1-account-update.xyz`.
-- `test_investigate_url_benign`: Verified full pipeline for `github.com`.
-- `test_investigate_message_scam`: Verified message investigation pipeline.
-- `test_correlation_graph_endpoint`: Verified graph cluster query.
-- `test_web3_submit_and_verify_cycle`: Verified submit -> verify cycle on smart contract registry.
-
----
-
-## ⛓️ Smart Contract: `ReportRegistry.sol`
-
-- **Location**: [`contracts/ReportRegistry.sol`](file:///C:/Users/Animesh/.gemini/antigravity/scratch/aegis-trust/contracts/ReportRegistry.sol)
-- **Deployment**: Sepolia Testnet at address `0x3A52c8087C174825965476a2638e469279A823B0`
-- **Functions**: `submitReport`, `reviseReport`, `verifyReport`, `disputeReport`
-- **Guarantees**: Zero PII or raw URLs on-chain; stores only cryptographic commitments (`bytes32 reportHash` and `bytes32 indicatorHash`).
+### Verified Test Coverage:
+- **Core Engine Unit Tests (`test_aegis_core.py` — 14/14 Passed)**:
+  - SSRF loopback (`127.0.0.1`), cloud metadata (`169.254.169.254`), RFC 1918 private subnet, and prohibited port blocking
+  - Tokenized Levenshtein typosquatting, brand-in-subdomain spoofing, and verified benign giant discounts
+  - Message IOC extraction, adversarial prompt-injection neutralization, and urgency-only false-positive guardrail
+  - Deterministic scoring caps, RFC 8785 canonical JSON determinism, and genuine Keccak-256 payload tamper detection
+- **API & Autonomous Agent Integration Tests (`test_api_endpoints.py` — 10/10 Passed)**:
+  - All 9 static portal routes (`/`, `/consumer`, `/agent`, `/sandbox`, `/findings`, `/redirects`, `/tls`, `/graph`, `/web3`)
+  - URL & Message investigation pipelines (`paypa1-account-update.xyz`, `github.com`, `emudhra-compromised-ca.example`, SBI scam SMS)
+  - Autonomous Agent post-click emergency incident responder (`EMERGENCY_INCIDENT_RESPONSE`) & auto-Web3 anchoring
+  - 24/7 Proactive Brand Watchdog sweep & Browser Extension blocklist synchronization
+  - Full Web3 lifecycle: `submit -> verify -> validate -> tamper detection`
 
 ---
 
 ## 📁 Repository Structure
 
 ```
-aegis-trust/
-├── .ua/                             # Knowledge Graph metadata (understand skill)
-│   ├── knowledge-graph.json         # Architectural knowledge graph
-│   └── meta.json                    # Analysis metadata
+AegisTrust/
 ├── backend/
 │   ├── app/
-│   │   ├── core/                    # SSRF Guard & RFC 8785 Canonical Hasher
+│   │   ├── core/                    # SSRF Guard (DNS IP Pinning) & RFC 8785 Keccak-256 Hasher
 │   │   │   ├── canonical_hasher.py
 │   │   │   └── ssrf_guard.py
-│   │   ├── data/                    # Distrusted CAs (eMudhra) & Top Brands
-│   │   │   ├── distrusted_cas.json
-│   │   │   └── top_brands.json
-│   │   ├── models/                  # Pydantic Schemas & Data Contracts
+│   │   ├── data/                    # Distrusted CAs (eMudhra), Top Brands, Threat Feeds & Ledger
+│   │   ├── models/                  # Pydantic v2 Schemas & Agent Contracts
 │   │   │   └── schemas.py
-│   │   ├── modules/                 # Modular Threat Analyzers
+│   │   ├── modules/                 # 6 Threat Detection & Correlation Modules
 │   │   │   ├── correlation_engine.py
 │   │   │   ├── message_analyzer.py
 │   │   │   ├── redirect_tracer.py
 │   │   │   ├── security_headers.py
 │   │   │   ├── tls_analyzer.py
 │   │   │   └── url_analyzer.py
-│   │   ├── services/                # Scoring, Gemini AI & Web3 Registry
+│   │   ├── services/                # Deterministic Scorer, AI Explainer, Web3 & Autonomous Agent
+│   │   │   ├── agent_service.py
 │   │   │   ├── explainer_service.py
 │   │   │   ├── scoring_engine.py
 │   │   │   └── web3_service.py
-│   │   ├── static/                  # Cyber Noir Bento Web Dashboard
-│   │   │   ├── index.html           # Live Production SOC Console
-│   │   │   ├── sandbox.html         # Evaluation Sandbox & Tamper Lab
-│   │   │   └── stitch_clean.html    # Base Stitch template reference
+│   │   ├── static/                  # Multi-Portal Web UI (SOC, Consumer, Agent, Web3, Sandbox)
 │   │   └── main.py                  # FastAPI Application Entry Point
-│   ├── tests/                       # Complete Pytest Test Suite
-│   │   ├── test_aegis_core.py
-│   │   └── test_api_endpoints.py
-│   └── requirements.txt
+│   └── tests/                       # 24 Automated Unit & Integration Tests
+│       ├── test_aegis_core.py
+│       └── test_api_endpoints.py
 ├── contracts/
-│   └── ReportRegistry.sol           # Solidity 0.8.20 Smart Contract
-├── .env.example                     # Environment Configuration Template
-├── .gitignore
-├── architecture_spec.md             # In-depth Engineering Architecture Spec
-├── docker-compose.yml               # Container Orchestration
-├── Dockerfile                       # Multi-stage Production Container
-├── findings.md                      # Technical Invariants & Scoring Rules
-├── README.md                        # Master Documentation
-├── requirements.txt                 # Root Dependencies
-├── run_tests.bat                    # 1-Click Test Runner (Batch)
-├── run_tests.ps1                    # 1-Click Test Runner (PowerShell)
-├── start_server.bat                 # 1-Click Server Launcher (Batch)
-├── start_server.ps1                 # 1-Click Server Launcher (PowerShell)
-├── task_plan.md                     # Milestone Plan & Execution Tracker
-└── TEST_REPORT.md                   # Full Automated Test Results Report
+│   └── ReportRegistry.sol           # Solidity 0.8.20 Smart Contract (Submit, Revise, Validate, Dispute, Verify)
+├── extension/                       # Chrome / Edge Manifest V3 Real-Time Browser Shield
+│   ├── manifest.json
+│   ├── background.js
+│   ├── content.js
+│   ├── popup.html
+│   └── popup.js
+├── docker-compose.yml
+├── Dockerfile
+├── requirements.txt
+└── README.md
 ```
-
----
-
-## 🏆 Hackathon Compliance Checklist
-
-- [x] **Artificial Intelligence**: Hybrid Google Gemini 2.5 Flash + deterministic explainability grounded strictly in verified findings; prompt injection defenses with verbatim extraction.
-- [x] **Cybersecurity**: Pre-resolved SSRF protection, tokenized Levenshtein typosquatting, safe redirect tracing, and eMudhra CA defect detection (Bugzilla #1898124).
-- [x] **Web3 & Blockchain**: RFC 8785 canonical JSON serializer, Ethereum Keccak-256 commitments, on-chain registry (`ReportRegistry.sol`), and live 1-byte tamper verification test.
-- [x] **High-Taste UI/UX**: Google Stitch `Cyber Noir Bento` theme, dual-mode Live SOC / Sandbox architecture, and dynamic Material Symbols Outlined icons.

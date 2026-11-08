@@ -142,3 +142,48 @@ class Web3VerificationResponse(BaseModel):
     validations_count: int = 0
     disputes_count: int = 0
     supersedes: int = 0
+
+
+class AgentStep(BaseModel):
+    step_number: int
+    phase: str  # OBSERVE, THINK, ACT, PIVOT, DEFEND, SYNTHESIZE
+    tool_name: str
+    tool: str = ""
+    thought: str
+    observation: str
+    status: str = "completed"  # completed, warning, alert, action_taken
+    duration_ms: int = 12
+
+
+class AgentInvestigateRequest(BaseModel):
+    query: Optional[str] = None
+    page_url: Optional[str] = None
+    has_password_form: bool = False
+    page_context: Optional[Dict[str, Any]] = None
+    auto_anchor_web3: bool = True
+
+
+class AgentInvestigateResponse(BaseModel):
+    session_id: str
+    agent_id: str
+    timestamp: str
+    intent_mode: str  # THREAT_HUNT, EMERGENCY_INCIDENT_RESPONSE, SCAM_TRIAGE, PAGE_GUARD
+    intent_detected: str
+    primary_target: str
+    risk_score: int
+    risk_classification: str
+    findings: List[Finding] = []
+    steps: List[AgentStep]
+    copilot_reply: str
+    emergency_checklist: List[str] = []
+    emergency_recovery_steps: List[str] = []
+    auto_actions_taken: List[str] = []
+    auto_anchored_web3: bool = False
+    report_hash_keccak256: str = ""
+    web3_receipt: Optional[Dict[str, Any]] = None
+    onchain_receipt: Optional[Dict[str, Any]] = None
+    investigation_report: Optional[InvestigationResponse] = None
+
+
+class WatchdogScanRequest(BaseModel):
+    protected_brand: str = "paypal.com"

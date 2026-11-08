@@ -5,6 +5,8 @@ Provides REST APIs for:
 - Message and scam social engineering analysis
 - Threat correlation graph queries
 - Web3 cryptographic registration, validation, dispute tracking, and independent verification
+- Autonomous AI Security Agent (Observe -> Think -> Act -> Pivot -> Defend) & 24/7 Brand Watchdog
+- Browser Extension Real-Time Protection & Blocklist Synchronization
 """
 
 import time
@@ -55,6 +57,9 @@ from app.models.schemas import (
     Web3VerificationResponse,
     Finding,
     Severity,
+    AgentInvestigateRequest,
+    AgentInvestigateResponse,
+    WatchdogScanRequest,
 )
 from app.modules.url_analyzer import URLAnalyzer
 from app.modules.redirect_tracer import RedirectTracer
@@ -65,6 +70,7 @@ from app.modules.correlation_engine import CorrelationEngine
 from app.services.scoring_engine import ScoringEngine
 from app.services.explainer_service import ExplainerService
 from app.services.web3_service import Web3RegistryService
+from app.services.agent_service import AegisAgentService
 from app.core.canonical_hasher import (
     compute_report_hash,
     compute_indicator_hash,
@@ -73,11 +79,11 @@ from app.core.canonical_hasher import (
 
 app = FastAPI(
     title="AegisTrust Security Intelligence API",
-    description="Evidence-grounded cybersecurity analysis, AI scam detection, and Web3 verifiable reporting.",
-    version="1.0.0"
+    description="Evidence-grounded cybersecurity analysis, AI scam detection, Autonomous Security Agent, and Web3 verifiable reporting.",
+    version="1.1.0"
 )
 
-# Enable CORS for Next.js / browser clients
+# Enable CORS for Next.js / browser clients & Chrome/Edge extension
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -105,6 +111,14 @@ def serve_consumer():
     consumer_file = os.path.join(static_dir, "consumer.html")
     if os.path.exists(consumer_file):
         return FileResponse(consumer_file)
+    return FileResponse(os.path.join(static_dir, "index.html"))
+
+
+@app.get("/agent")
+def serve_agent():
+    agent_file = os.path.join(static_dir, "agent.html")
+    if os.path.exists(agent_file):
+        return FileResponse(agent_file)
     return FileResponse(os.path.join(static_dir, "index.html"))
 
 
@@ -159,12 +173,18 @@ url_analyzer = URLAnalyzer()
 tls_analyzer = TLSAnalyzer()
 correlation_engine = CorrelationEngine()
 web3_service = Web3RegistryService()
+agent_service = AegisAgentService(
+    url_analyzer=url_analyzer,
+    tls_analyzer=tls_analyzer,
+    correlation_engine=correlation_engine,
+    web3_service=web3_service,
+)
 
 
 @app.get("/health")
 @app.get("/api/v1/health")
 def health():
-    return {"status": "healthy", "service": "AegisTrust", "version": "1.0.0"}
+    return {"status": "healthy", "service": "AegisTrust", "version": "1.1.0"}
 
 
 @app.get("/api/v1/distrusted-cas")
@@ -461,6 +481,40 @@ def investigate_message(req: InvestigationRequest):
         onchain_registry_status="Unregistered"
     )
 
+
+# --- Autonomous AI Security Agent & Proactive Watchdog Routes ---
+
+@app.post("/api/v1/agent/investigate", response_model=AgentInvestigateResponse)
+def agent_investigate(req: AgentInvestigateRequest):
+    if not req.query and not req.page_url:
+        raise HTTPException(status_code=400, detail="Either 'query' or 'page_url' is required for Agent investigation.")
+    return agent_service.run_agent_investigation(req)
+
+
+@app.post("/api/v1/agent/watchdog/scan")
+def agent_watchdog_scan(req: WatchdogScanRequest):
+    return agent_service.run_watchdog_scan(req.protected_brand)
+
+
+@app.get("/api/v1/agent/watchdog/status")
+def agent_watchdog_status():
+    return {
+        "history": agent_service.watchdog_history,
+        "blocklist": list(agent_service.extension_blocklist.values()),
+        "blocklist_count": len(agent_service.extension_blocklist),
+    }
+
+
+@app.get("/api/v1/extension/blocklist")
+def get_extension_blocklist():
+    return {
+        "blocklist": list(agent_service.extension_blocklist.values()),
+        "intel_feeds": url_analyzer.intel_snapshot,
+        "distrusted_cas": tls_analyzer.distrusted_cas,
+    }
+
+
+# --- Web3 Registry Routes ---
 
 @app.get("/api/v1/web3/reports")
 def list_web3_reports():

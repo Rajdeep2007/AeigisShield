@@ -4,6 +4,8 @@ Verifies:
 - /api/v1/investigate/url (benign, typosquat, threat intel, limitations & coverage)
 - /api/v1/investigate/message (scam detection, tactic quotes, correlation)
 - /api/v1/correlations/{domain} (threat cluster graph)
+- /api/v1/agent/investigate (Autonomous AI Security Agent multi-step tool loop & incident responder)
+- /api/v1/agent/watchdog/scan & /api/v1/extension/blocklist (Proactive 24/7 Brand Watchdog & Extension Sync)
 - /api/v1/web3/submit, /api/v1/web3/verify, /api/v1/web3/validate, /api/v1/web3/dispute
 - /health, /favicon.ico, and dedicated static view routes
 """
@@ -18,6 +20,7 @@ from app.main import (
     favicon,
     serve_dashboard,
     serve_consumer,
+    serve_agent,
     serve_sandbox,
     serve_findings,
     serve_redirects,
@@ -27,6 +30,10 @@ from app.main import (
     investigate_url,
     investigate_message,
     get_correlations,
+    agent_investigate,
+    agent_watchdog_scan,
+    agent_watchdog_status,
+    get_extension_blocklist,
     submit_to_web3,
     verify_web3_report,
     validate_web3_report,
@@ -34,6 +41,8 @@ from app.main import (
 )
 from app.models.schemas import (
     InvestigationRequest,
+    AgentInvestigateRequest,
+    WatchdogScanRequest,
     Web3SubmitRequest,
     Web3VerifyRequest,
     Web3ValidateRequest,
@@ -58,7 +67,17 @@ def test_health_and_favicon_endpoints():
 
 def test_static_page_routes():
     # Verify all dedicated subpages resolve properly
-    for fn in (serve_dashboard, serve_consumer, serve_sandbox, serve_findings, serve_redirects, serve_tls, serve_graph, serve_web3):
+    for fn in (
+        serve_dashboard,
+        serve_consumer,
+        serve_agent,
+        serve_sandbox,
+        serve_findings,
+        serve_redirects,
+        serve_tls,
+        serve_graph,
+        serve_web3,
+    ):
         res = fn()
         assert res is not None
 
@@ -103,6 +122,37 @@ def test_correlation_graph_endpoint():
     assert "nodes" in data
     assert "edges" in data
     assert data["cluster_size"] >= 2  # Connected to sbi-rewards-redeem.cc
+
+
+def test_autonomous_agent_emergency_incident_response():
+    req = AgentInvestigateRequest(
+        query="HELP! I already clicked http://onlinesbi-kyc-update.com/login and entered my password and OTP!",
+        has_password_form=True,
+        auto_anchor_web3=True,
+    )
+    data = _to_dict(agent_investigate(req))
+    assert data["intent_detected"] == "EMERGENCY_INCIDENT_RESPONSE"
+    assert data["risk_score"] >= 60
+    assert data["risk_classification"] in ("High Risk", "Confirmed Malicious")
+    assert len(data["steps"]) >= 7
+    assert data["auto_anchored_web3"] is True
+    assert data["web3_receipt"] is not None
+    assert "tx_hash" in data["web3_receipt"]
+    assert len(data["emergency_recovery_steps"]) >= 3
+
+
+def test_watchdog_and_extension_blocklist():
+    scan_res = _to_dict(agent_watchdog_scan(WatchdogScanRequest(protected_brand="paypal.com")))
+    assert scan_res["protected_brand"] == "paypal.com"
+    assert scan_res["candidates_scanned"] >= 3
+    assert scan_res["threats_auto_blocked"] >= 1
+
+    status_res = _to_dict(agent_watchdog_status())
+    assert status_res["blocklist_count"] >= 1
+
+    ext_res = _to_dict(get_extension_blocklist())
+    assert len(ext_res["blocklist"]) >= 1
+    assert len(ext_res["distrusted_cas"]) >= 1
 
 
 def test_web3_submit_verify_validate_dispute_cycle():

@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AegisTrust — Autonomous AI Security Agent & Brand Watchdog</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    * { transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease; }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+    .material-symbols-fill { font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.65; transform: scale(1.06); }
+    }
+    .agent-pulse { animation: pulseGlow 2.2s infinite ease-in-out; }
+  </style>
+</head>
+<body class="bg-[#f8fafc] text-slate-800 dark:bg-[#0c0f17] dark:text-slate-100 min-h-screen flex flex-col antialiased selection:bg-indigo-500/20">
+
+  <!-- Ambient Background Glow -->
+  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+    <div class="absolute -top-32 right-0 w-[650px] h-[650px] bg-gradient-to-br from-indigo-500/20 via-purple-500/15 to-transparent rounded-full blur-[140px]"></div>
+    <div class="absolute -bottom-32 left-10 w-[550px] h-[550px] bg-sky-400/15 rounded-full blur-[150px]"></div>
+  </div>
+
+  <!-- TOP NAVIGATION BAR -->
+  <header class="h-20 bg-white/85 dark:bg-[#111622]/90 backdrop-blur-xl border-b border-slate-200/80 dark:border-white/10 px-5 sm:px-8 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+    <div class="flex items-center gap-6">
+      <a href="/" class="flex items-center gap-3 group">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-sky-400 via-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/25 text-white group-hover:scale-105 transition-transform">
+          <span class="material-symbols-outlined text-2xl material-symbols-fill">shield</span>
+        </div>
+        <div class="flex flex-col">
+          <span class="font-extrabold text-base tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+            AegisTrust
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 font-bold border border-indigo-500/30">AGENTIC v2.6</span>
+          </span>
+          <span class="text-xs text-slate-500 dark:text-slate-400">Autonomous Cyber Agent & Browser Shield</span>
+        </div>
+      </a>
+
+      <!-- Horizontal Navigation Links -->
+      <nav class="hidden lg:flex items-center gap-1.5 ml-4">
+        <a href="/" class="flex items-center gap-2 px-3.5 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 font-semibold text-xs transition-all">
+          <span class="material-symbols-outlined text-base">troubleshoot</span>
+          <span>Scanner & Triage</span>
+        </a>
+        <a href="/agent" class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 font-bold text-xs border border-indigo-500/30 shadow-sm transition-all">
+          <span class="material-symbols-outlined text-base">smart_toy</span>
+          <span>AI Security Agent</span>
+        </a>
+        <a href="/redirects" class="flex items-center gap-2 px-3.5 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 font-semibold text-xs transition-all">
+          <span class="material-symbols-outlined text-base">alt_route</span>
+          <span>URL & Redirects</span>
+        </a>
+        <a href="/tls" class="flex items-center gap-2 px-3.5 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 font-semibold text-xs transition-all">
+          <span class="material-symbols-outlined text-base">verified_user</span>
+          <span>TLS & Distrusted CAs</span>
+        </a>
+        <a href="/web3" class="flex items-center gap-2 px-3.5 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 font-semibold text-xs transition-all">
+          <span class="material-symbols-outlined text-base">token</span>
+          <span>Web3 Registry</span>
+        </a>
+        <a href="/sandbox" class="flex items-center gap-2 px-3.5 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 font-semibold text-xs transition-all">
+          <span class="material-symbols-outlined text-base">science</span>
+          <span>Test Bench (3+3)</span>
+        </a>
+      </nav>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 agent-pulse"></span>
+        <span>Extension Blocklist: <strong id="nav-blocklist-count">0</strong> Domains</span>
+      </div>
+
+      <button onclick="toggleTheme()" class="p-2.5 rounded-2xl bg-white dark:bg-white/10 border border-slate-200 dark:border-white/15 text-slate-700 dark:text-amber-300 hover:scale-105 shadow-sm transition-all" title="Toggle Light / Dark Theme">
+        <span id="theme-icon" class="material-symbols-outlined text-xl">dark_mode</span>
+      </button>
+
+      <a href="/consumer" class="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-md transition-all">
+        <span class="material-symbols-outlined text-base">person</span>
+        <span class="hidden sm:inline">Consumer Portal</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-8 py-8 z-10 space-y-8">
+
+    <!-- HERO BANNER: HOW THE AUTONOMOUS AGENT & EXTENSION WORK TOGETHER -->
+    <section class="rounded-3xl bg-gradient-to-r from-indigo-600 via-blue-600 to-sky-600 p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+      <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div class="max-w-3xl space-y-2">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md text-xs font-bold uppercase tracking-wider">
+            <span class="material-symbols-outlined text-sm">bolt</span>
+            Autonomous Observe → Think → Act → Pivot → Defend Loop
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+            Aegis Autonomous AI Security Agent & Real-Time Browser Shield
+          </h1>
+          <p class="text-sm text-indigo-100 leading-relaxed">
+            Unlike passive link scanners that wait for a copy-paste, the <strong>Aegis AI Agent</strong> autonomously unrolls obfuscated redirects, inspects X.509/CA root trust, pivots across the NetworkX fraud graph, guides victims through post-click incident recovery, and <strong>auto-anchors confirmed threats to the Web3 Registry + Browser Extension Blocklist</strong>.
+          </p>
+        </div>
+        <div class="grid grid-cols-3 gap-3 shrink-0 text-center">
+          <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-3.5">
+            <div class="text-xl font-extrabold font-mono">7-Step</div>
+            <div class="text-[11px] text-indigo-100">Autonomous Tool Loop</div>
+          </div>
+          <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-3.5">
+            <div class="text-xl font-extrabold font-mono">Auto-Web3</div>
+            <div class="text-[11px] text-indigo-100">Keccak-256 Defense</div>
+          </div>
+          <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-3.5">
+            <div class="text-xl font-extrabold font-mono">MV3 Shield</div>
+            <div class="text-[11px] text-indigo-100">Chrome/Edge Blocker</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 1: AUTONOMOUS AGENT CONSOLE & CYBER COPILOT -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+      <!-- Left Column (5 cols): Agent Mission Control & Presets -->
+      <div class="lg:col-span-5 space-y-6">
+        <div class="bg-white dark:bg-[#141926] rounded-3xl border border-slate-200/80 dark:border-white/10 p-6 shadow-sm space-y-5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="material-symbols-outlined text-indigo-600 dark:text-indigo-400 text-2xl">psychology</span>
+              <div>
+                <h2 class="font-extrabold text-base text-slate-900 dark:text-white">Agent Mission Control</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Dispatch an autonomous investigation or ask for incident response</p>
+              </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-full text-[11px] font-mono font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">READY</span>
+          </div>
+
+          <!-- 1-Click Autonomous Mission Presets -->
+          <div class="space-y-2">
+            <label class="text-xs font-bold uppercase tracking-wider text-slate-400">1-Click Autonomous Scenarios</label>
+            <div class="grid grid-cols-1 gap-2">
+              <button onclick="loadAgentPreset(1)" class="text-left p-3 rounded-2xl border border-slate-200 dark:border-white/10 hover:border-indigo-500 dark:hover:border-indigo-400 bg-slate-50/70 dark:bg-white/5 transition-all group">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm">radar</span>
+                    1. Autonomous Clue-Pivot Threat Hunt
+                  </span>
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-500/15 text-rose-600 dark:text-rose-400 font-bold">Auto-Blocks</span>
+                </div>
+                <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">Unrolls suspicious PayPal Punycode/lookalike link, pivots across NetworkX cluster, and auto-anchors to Web3.</p>
+              </button>
+
+              <button onclick="loadAgentPreset(2)" class="text-left p-3 rounded-2xl border border-slate-200 dark:border-white/10 hover:border-indigo-500 dark:hover:border-indigo-400 bg-slate-50/70 dark:bg-white/5 transition-all group">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-rose-600 dark:text-rose-400 flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm">emergency</span>
+                    2. Emergency Responder: "I Already Entered My Password!"
+                  </span>
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-400 font-bold">Recovery Guide</span>
+                </div>
+                <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">Simulates a victim who clicked an SBI KYC phishing link and entered credentials—generates immediate containment steps.</p>
+              </button>
+
+              <button onclick="loadAgentPreset(3)" class="text-left p-3 rounded-2xl border border-slate-200 dark:border-white/10 hover:border-indigo-500 dark:hover:border-indigo-400 bg-slate-50/70 dark:bg-white/5 transition-all group">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm">chat_error</span>
+                    3. WhatsApp/Telegram Job Scam + UPI Mule Pivot
+                  </span>
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 font-bold">Graph Pivot</span>
+                </div>
+                <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">Extracts embedded URL + UPI handle (`paytm-kyc-verify@okaxis`) and links them to a multi-domain scam ring.</p>
+              </button>
+
+              <button onclick="loadAgentPreset(4)" class="text-left p-3 rounded-2xl border border-slate-200 dark:border-white/10 hover:border-indigo-500 dark:hover:border-indigo-400 bg-slate-50/70 dark:bg-white/5 transition-all group">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-purple-600 dark:text-purple-400 flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm">gpp_bad</span>
+                    4. Compromised CA Root Breach (`eMudhra` Advisory)
+                  </span>
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-500/15 text-purple-600 dark:text-purple-400 font-bold">CA Distrust</span>
+                </div>
+                <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">Detects certificate chain issued by distrusted CA (`Mozilla Bugzilla #1898124`) despite valid HTTPS padlock.</p>
+              </button>
+            </div>
+          </div>
+
+          <!-- Input Textarea -->
+          <div class="space-y-2">
+            <label for="agent-query-input" class="text-xs font-bold uppercase tracking-wider text-slate-400">Task / Suspicious Link / Emergency Question</label>
+            <textarea id="agent-query-input" rows="4" class="w-full rounded-2xl border border-slate-200 dark:border-white/15 bg-slate-50 dark:bg-[#0c0f17] p-3.5 text-sm font-mono text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Paste a URL, suspicious message, or ask: 'I clicked http://onlinesbi-kyc-update.com/login and typed my password, what do I do?'"></textarea>
+          </div>
+
+          <!-- Extension DOM Sensor Simulation Toggle -->
+          <label class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 cursor-pointer">
+            <div class="flex items-center gap-2.5">
+              <span class="material-symbols-outlined text-rose-500">password</span>
+              <div>
+                <div class="text-xs font-bold text-slate-800 dark:text-slate-200">Simulate Browser DOM `<input type="password">` Sensor</div>
+                <div class="text-[11px] text-slate-500 dark:text-slate-400">Flags active credential harvesting form on untrusted domain</div>
+              </div>
+            </div>
+            <input id="agent-password-sensor" type="checkbox" class="w-4 h-4 accent-indigo-600 rounded"/>
+          </label>
+
+          <!-- Launch Button -->
+          <button id="agent-run-btn" onclick="runAgentInvestigation()" class="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-500 hover:to-sky-500 text-white font-extrabold text-sm shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 transition-all">
+            <span class="material-symbols-outlined text-lg">play_circle</span>
+            <span>Launch Autonomous Agent Investigation</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Right Column (7 cols): Live Step-by-Step Reasoning Trace & Copilot Response -->
+      <div class="lg:col-span-7 space-y-6">
+
+        <!-- Agent Status & Verdict Header Card -->
+        <div id="agent-result-card" class="bg-white dark:bg-[#141926] rounded-3xl border border-slate-200/80 dark:border-white/10 p-6 shadow-sm space-y-6">
+          <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200/70 dark:border-white/10 pb-4">
+            <div>
+              <div class="flex items-center gap-2">
+                <span id="agent-intent-badge" class="text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">AWAITING MISSION</span>
+                <span id="agent-id-badge" class="text-xs font-mono text-slate-400"></span>
+              </div>
+              <h3 id="agent-target-title" class="text-lg font-extrabold text-slate-900 dark:text-white mt-1">Select a preset or enter a query to watch the Agent think & act</h3>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <div class="text-right">
+                <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Deterministic Score</div>
+                <div id="agent-score-display" class="text-2xl font-extrabold font-mono text-slate-400">--/100</div>
+              </div>
+              <span id="agent-classification-badge" class="px-3.5 py-1.5 rounded-2xl text-xs font-extrabold bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300">
+                Standby
+              </span>
+            </div>
+          </div>
+
+          <!-- Multi-Step Reasoning Timeline (Observe -> Think -> Act -> Pivot -> Defend) -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-sm text-indigo-500">account_tree</span>
+                Autonomous Multi-Step Execution Trace
+              </h4>
+              <span class="text-[11px] font-mono text-slate-400">LLM Never Alters Deterministic Score</span>
+            </div>
+
+            <div id="agent-steps-container" class="space-y-2.5">
+              <div class="p-6 rounded-2xl bg-slate-50 dark:bg-white/5 border border-dashed border-slate-200 dark:border-white/10 text-center text-xs text-slate-500 dark:text-slate-400">
+                The Agent's 7-step <strong>OBSERVE → ACT → PIVOT → DEFEND → SYNTHESIZE</strong> trace will stream here with per-tool latency and observations.
+              </div>
+            </div>
+          </div>
+
+          <!-- Cyber Copilot Response & Emergency Recovery Checklist -->
+          <div id="agent-copilot-section" class="hidden space-y-4 pt-2 border-t border-slate-200/70 dark:border-white/10">
+            <div class="p-4 rounded-2xl bg-indigo-500/5 border border-indigo-500/20 space-y-2">
+              <div class="flex items-center gap-2 text-xs font-extrabold text-indigo-600 dark:text-indigo-400">
+                <span class="material-symbols-outlined text-base">support_agent</span>
+                <span>Aegis Cyber Copilot Synthesis</span>
+              </div>
+              <p id="agent-copilot-reply" class="text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed"></p>
+            </div>
+
+            <!-- Emergency Action Checklist -->
+            <div class="space-y-2">
+              <h4 class="text-xs font-extrabold uppercase tracking-wider text-rose-600 dark:text-rose-400 flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-sm">checklist</span>
+                Recommended Containment & Recovery Protocol
+              </h4>
+              <ul id="agent-recovery-list" class="space-y-1.5 text-xs text-slate-700 dark:text-slate-300"></ul>
+            </div>
+
+            <!-- Auto-Anchored Web3 Defense Receipt -->
+            <div id="agent-web3-receipt" class="hidden p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-extrabold text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-base">verified</span>
+                  Autonomous Defense Triggered: Anchored to Web3 & Browser Blocklist
+                </span>
+                <span id="agent-web3-block" class="text-[11px] font-mono font-bold text-emerald-700 dark:text-emerald-300"></span>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] font-mono text-slate-600 dark:text-slate-300">
+                <div class="truncate"><strong>Tx Hash:</strong> <span id="agent-web3-tx"></span></div>
+                <div class="truncate"><strong>Keccak-256:</strong> <span id="agent-web3-hash"></span></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 2: PROACTIVE 24/7 AUTONOMOUS BRAND WATCHDOG -->
+    <section class="bg-white dark:bg-[#141926] rounded-3xl border border-slate-200/80 dark:border-white/10 p-6 sm:p-8 shadow-sm space-y-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div class="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">
+            <span class="material-symbols-outlined text-sm">visibility</span>
+            Zero-Click Proactive Threat Hunting
+          </div>
+          <h2 class="text-xl font-extrabold text-slate-900 dark:text-white mt-0.5">24/7 Autonomous Brand & Certificate Transparency Watchdog</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">
+            Hunts newly registered typosquats, Punycode homographs, and compromised-CA certificates targeting protected brands—and auto-commits high-risk hits to the Web3 Registry before victims click.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5">
+          <select id="watchdog-brand-select" class="rounded-2xl border border-slate-200 dark:border-white/15 bg-slate-50 dark:bg-[#0c0f17] px-3.5 py-2.5 text-xs font-mono font-bold text-slate-800 dark:text-slate-100">
+            <option value="paypal.com">paypal.com (Global FinTech)</option>
+            <option value="onlinesbi.sbi">onlinesbi.sbi (State Bank of India)</option>
+            <option value="hdfcbank.com">hdfcbank.com (HDFC Banking)</option>
+            <option value="github.com">github.com (Developer Cloud)</option>
+          </select>
+          <button id="watchdog-scan-btn" onclick="runWatchdogSweep()" class="px-5 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs shadow-md flex items-center gap-1.5 transition-all">
+            <span class="material-symbols-outlined text-base">radar</span>
+            <span>Run Autonomous CT Log & Lookalike Sweep</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="watchdog-results-container" class="overflow-x-auto">
+        <div class="p-6 rounded-2xl bg-slate-50 dark:bg-white/5 border border-dashed border-slate-200 dark:border-white/10 text-center text-xs text-slate-500 dark:text-slate-400">
+          Select a protected brand above and click <strong>Run Autonomous CT Log & Lookalike Sweep</strong> to hunt impersonation domains and auto-anchor them to Web3.
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: CHROME / EDGE BROWSER EXTENSION INSTALLATION & LIVE SYNC -->
+    <section class="bg-white dark:bg-[#141926] rounded-3xl border border-slate-200/80 dark:border-white/10 p-6 sm:p-8 shadow-sm space-y-5">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-600 dark:text-sky-400">
+            <span class="material-symbols-outlined text-2xl">extension</span>
+          </div>
+          <div>
+            <h2 class="text-lg font-extrabold text-slate-900 dark:text-white">AegisShield Chrome / Edge Browser Extension (Manifest V3)</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Protects users automatically on every tab, highlights password-harvesting forms, and injects a full-screen phishing blocker.</p>
+          </div>
+        </div>
+        <span class="px-3 py-1.5 rounded-full text-xs font-mono font-bold bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20">
+          Directory: /extension (Manifest V3)
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+        <div class="p-4 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 space-y-1.5">
+          <div class="font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-sm text-sky-500">looks_one</span>
+            Load Unpacked in Chrome / Edge
+          </div>
+          <p class="text-slate-600 dark:text-slate-400 leading-relaxed">
+            Open <code class="font-mono bg-slate-200/70 dark:bg-white/10 px-1.5 py-0.5 rounded">chrome://extensions</code>, enable <strong>Developer mode</strong>, click <strong>Load unpacked</strong>, and select the <code class="font-mono bg-slate-200/70 dark:bg-white/10 px-1.5 py-0.5 rounded">extension/</code> folder in this workspace.
+          </p>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 space-y-1.5">
+          <div class="font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-sm text-indigo-500">looks_two</span>
+            Automatic Tab & Right-Click Guard
+          </div>
+          <p class="text-slate-600 dark:text-slate-400 leading-relaxed">
+            Every visited URL is scored in the background. Right-click any link or highlighted message on WhatsApp Web / Gmail and select <strong>"🛡️ Investigate with Aegis AI Agent"</strong>.
+          </p>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 space-y-1.5">
+          <div class="font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-sm text-rose-500">looks_3</span>
+            Full-Screen Red Phishing Interceptor
+          </div>
+          <p class="text-slate-600 dark:text-slate-400 leading-relaxed">
+            When Risk Score &ge; 60 (or when testing via the popup's <em>Simulate Phishing Block</em> button), AegisShield halts credential entry with an on-page warning & Keccak-256 proof.
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // Theme initialization
+    function initTheme() {
+      const saved = localStorage.getItem("aegis_theme") || "light";
+      document.documentElement.classList.toggle("dark", saved === "dark");
+      const icon = document.getElementById("theme-icon");
+      if (icon) icon.textContent = saved === "dark" ? "light_mode" : "dark_mode";
+    }
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle("dark");
+      localStorage.setItem("aegis_theme", isDark ? "dark" : "light");
+      const icon = document.getElementById("theme-icon");
+      if (icon) icon.textContent = isDark ? "light_mode" : "dark_mode";
+    }
+    initTheme();
+
+    const PRESETS = {
+      1: {
+        query: "Investigate suspicious link https://xn--pypal-4ve.com/login/verify and check if it belongs to a known phishing cluster.",
+        has_password_form: true
+      },
+      2: {
+        query: "URGENT HELP: I already clicked http://onlinesbi-kyc-update.com/login and entered my netbanking password and OTP! What should I do right now?",
+        has_password_form: true
+      },
+      3: {
+        query: "URGENT: Your account is suspended! Verify immediately at http://hdfc-kyc-update.xyz/login or pay penalty to UPI paytm-kyc-verify@okaxis within 15 minutes.",
+        has_password_form: false
+      },
+      4: {
+        query: "Audit https://portal-verify-auth.com/corporate-sso — the browser shows a valid HTTPS padlock, is its Certificate Authority trustworthy?",
+        has_password_form: true
+      }
+    };
+
+    function loadAgentPreset(id) {
+      const p = PRESETS[id];
+      if (!p) return;
+      document.getElementById("agent-query-input").value = p.query;
+      document.getElementById("agent-password-sensor").checked = p.has_password_form;
+      runAgentInvestigation();
+    }
+
+    function getPhaseBadgeColor(phase) {
+      switch (phase) {
+        case "OBSERVE": return "bg-sky-500/15 text-sky-600 dark:text-sky-400 border-sky-500/30";
+        case "ACT": return "bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border-indigo-500/30";
+        case "PIVOT": return "bg-purple-500/15 text-purple-600 dark:text-purple-400 border-purple-500/30";
+        case "DEFEND": return "bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30";
+        case "SYNTHESIZE": return "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30";
+        default: return "bg-slate-500/15 text-slate-600 border-slate-500/30";
+      }
+    }
+
+    function getVerdictStyle(classification) {
+      if (classification === "Confirmed Malicious" || classification === "High Risk") {
+        return "bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30";
+      }
+      if (classification === "Suspicious") {
+        return "bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30";
+      }
+      return "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30";
+    }
+
+    async function refreshBlocklistCount() {
+      try {
+        const res = await fetch("/api/v1/agent/watchdog/status");
+        if (res.ok) {
+          const data = await res.json();
+          document.getElementById("nav-blocklist-count").textContent = data.blocklist_count || 0;
+        }
+      } catch (e) {}
+    }
+
+    async function runAgentInvestigation() {
+      const query = document.getElementById("agent-query-input").value.trim();
+      const hasPasswordForm = document.getElementById("agent-password-sensor").checked;
+      if (!query) return;
+
+      const btn = document.getElementById("agent-run-btn");
+      btn.disabled = true;
+      btn.innerHTML = `<span class="material-symbols-outlined text-lg animate-spin">sync</span><span>Agent Executing Multi-Step Tool Loop...</span>`;
+
+      try {
+        const res = await fetch("/api/v1/agent/investigate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            query: query,
+            has_password_form: hasPasswordForm,
+            auto_anchor_web3: true
+          })
+        });
+        const data = await res.json();
+        renderAgentResponse(data);
+        refreshBlocklistCount();
+      } catch (err) {
+        alert("Agent error: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span class="material-symbols-outlined text-lg">play_circle</span><span>Launch Autonomous Agent Investigation</span>`;
+      }
+    }
+
+    function renderAgentResponse(data) {
+      document.getElementById("agent-intent-badge").textContent = data.intent_detected || "THREAT_HUNT";
+      document.getElementById("agent-id-badge").textContent = `#${data.agent_id} • ${data.timestamp}`;
+      document.getElementById("agent-target-title").textContent = `Target: ${data.primary_target}`;
+      document.getElementById("agent-score-display").textContent = `${data.risk_score}/100`;
+
+      const clsBadge = document.getElementById("agent-classification-badge");
+      clsBadge.textContent = data.risk_classification;
+      clsBadge.className = `px-3.5 py-1.5 rounded-2xl text-xs font-extrabold ${getVerdictStyle(data.risk_classification)}`;
+
+      // Render Steps
+      const stepsContainer = document.getElementById("agent-steps-container");
+      stepsContainer.innerHTML = (data.steps || []).map(s => `
+        <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 space-y-1.5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-md border ${getPhaseBadgeColor(s.phase)}">
+                STEP ${s.step_number} • ${s.phase}
+              </span>
+              <span class="text-xs font-mono font-bold text-slate-800 dark:text-slate-200">${s.tool}</span>
+            </div>
+            <span class="text-[11px] font-mono text-slate-400">${s.duration_ms} ms • ${s.status}</span>
+          </div>
+          <div class="text-xs text-slate-500 dark:text-slate-400 italic">
+            <strong>Thought:</strong> ${s.thought}
+          </div>
+          <div class="text-xs font-medium text-slate-800 dark:text-slate-200 bg-white dark:bg-[#0c0f17] p-2.5 rounded-xl border border-slate-200/60 dark:border-white/5 font-mono">
+            ${s.observation}
+          </div>
+        </div>
+      `).join("");
+
+      // Copilot & Recovery
+      document.getElementById("agent-copilot-section").classList.remove("hidden");
+      document.getElementById("agent-copilot-reply").textContent = data.copilot_reply || "";
+
+      const recList = document.getElementById("agent-recovery-list");
+      recList.innerHTML = (data.emergency_recovery_steps || []).map(step => `
+        <li class="flex items-start gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/10">
+          <span class="material-symbols-outlined text-sm text-rose-500 mt-0.5">shield_lock</span>
+          <span>${step}</span>
+        </li>
+      `).join("");
+
+      // Web3 Receipt
+      const web3Box = document.getElementById("agent-web3-receipt");
+      if (data.auto_anchored_web3 && data.web3_receipt) {
+        web3Box.classList.remove("hidden");
+        document.getElementById("agent-web3-block").textContent = `Block #${data.web3_receipt.block_number}`;
+        document.getElementById("agent-web3-tx").textContent = data.web3_receipt.tx_hash;
+        document.getElementById("agent-web3-hash").textContent = data.report_hash_keccak256;
+      } else {
+        web3Box.classList.add("hidden");
+      }
+    }
+
+    async function runWatchdogSweep() {
+      const brand = document.getElementById("watchdog-brand-select").value;
+      const btn = document.getElementById("watchdog-scan-btn");
+      btn.disabled = true;
+      btn.innerHTML = `<span class="material-symbols-outlined text-base animate-spin">sync</span><span>Scanning CT Logs...</span>`;
+
+      try {
+        const res = await fetch("/api/v1/agent/watchdog/scan", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ protected_brand: brand })
+        });
+        const data = await res.json();
+        renderWatchdogTable(data);
+        refreshBlocklistCount();
+      } catch (e) {
+        alert("Watchdog scan failed: " + e.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span class="material-symbols-outlined text-base">radar</span><span>Run Autonomous CT Log & Lookalike Sweep</span>`;
+      }
+    }
+
+    function renderWatchdogTable(data) {
+      const container = document.getElementById("watchdog-results-container");
+      const rows = (data.discovered_domains || []).map(d => `
+        <tr class="border-b border-slate-200/60 dark:border-white/10 text-xs">
+          <td class="py-3 px-4 font-mono font-bold text-slate-900 dark:text-white">${d.domain}</td>
+          <td class="py-3 px-4 font-mono font-extrabold">${d.risk_score}/100</td>
+          <td class="py-3 px-4">
+            <span class="px-2.5 py-1 rounded-full text-[11px] font-bold ${getVerdictStyle(d.risk_classification)}">${d.risk_classification}</span>
+          </td>
+          <td class="py-3 px-4 text-slate-600 dark:text-slate-300">${(d.top_findings || []).join(" • ")}</td>
+          <td class="py-3 px-4 font-mono text-[11px]">
+            ${d.auto_anchored
+              ? `<span class="text-emerald-600 dark:text-emerald-400 font-bold">Anchored (${d.tx_hash.slice(0, 12)}...)</span>`
+              : `<span class="text-slate-400">Monitored</span>`}
+          </td>
+        </tr>
+      `).join("");
+
+      container.innerHTML = `
+        <div class="mb-3 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600 dark:text-slate-300">
+          <span><strong>Watchdog Run #${data.watchdog_run_id}</strong> for <code class="font-mono font-bold">${data.protected_brand}</code> — Scanned ${data.candidates_scanned} lookalikes in CT logs.</span>
+          <span class="font-bold text-emerald-600 dark:text-emerald-400">${data.threats_auto_blocked} High-Risk Domains Auto-Anchored to Web3 & Extension Blocklist</span>
+        </div>
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-slate-200 dark:border-white/10 text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
+              <th class="py-2.5 px-4">Discovered Lookalike Domain</th>
+              <th class="py-2.5 px-4">Score</th>
+              <th class="py-2.5 px-4">Verdict</th>
+              <th class="py-2.5 px-4">Primary Technical Evidence</th>
+              <th class="py-2.5 px-4">Autonomous Web3 Action</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    }
+
+    refreshBlocklistCount();
+  </script>
+</body>
+</html>
