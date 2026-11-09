@@ -1079,12 +1079,20 @@
         document.documentElement.classList.add('light');
       }
 
-      // Check URL scan param
+      // Check URL params
       const params = new URLSearchParams(window.location.search);
       const scanParam = params.get('scan');
       if (scanParam) {
         document.getElementById('input-url').value = scanParam;
         executeScan('url');
+      }
+      const tabParam = params.get('tab');
+      if (tabParam) {
+        switchBentoTab(tabParam);
+      }
+      const modeParam = params.get('mode');
+      if (modeParam) {
+        switchViewMode(modeParam);
       }
     });
   </script>

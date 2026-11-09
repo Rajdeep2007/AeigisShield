@@ -147,11 +147,10 @@
     { id: 'bench-selfsigned', title: 'Sandbox Preset: self-signed.badssl.com (Self-Signed)', category: 'Presets', icon: 'science', shortcut: '4', action: () => runPreset('https://self-signed.badssl.com') },
     { id: 'bench-github', title: 'Sandbox Preset: github.com (Benign Giant Baseline)', category: 'Presets', icon: 'science', shortcut: '5', action: () => runPreset('https://github.com') },
     { id: 'bench-tamper', title: 'Cryptographic On-Chain Tamper Verification Demo', category: 'Web3', icon: 'lock_reset', shortcut: 'T', action: () => runTamperTest() },
-    { id: 'nav-home', title: 'Navigate: Scanner & Live Triage', category: 'Navigation', icon: 'home', shortcut: 'H', action: () => window.location.href = '/' },
-    { id: 'nav-agent', title: 'Navigate: Autonomous AI Security Agent', category: 'Navigation', icon: 'smart_toy', shortcut: 'A', action: () => window.location.href = '/agent' },
-    { id: 'nav-graph', title: 'Navigate: Interactive Constellation Orbit Graph', category: 'Navigation', icon: 'hub', shortcut: 'G', action: () => window.location.href = '/graph' },
-    { id: 'nav-web3', title: 'Navigate: Web3 ReportRegistry Provenance', category: 'Navigation', icon: 'token', shortcut: 'W', action: () => window.location.href = '/web3' },
-    { id: 'nav-sandbox', title: 'Navigate: Test Bench & Presets', category: 'Navigation', icon: 'biotech', shortcut: 'B', action: () => window.location.href = '/sandbox' },
+    { id: 'nav-home', title: 'Command Center (Unified Bento)', category: 'Navigation', icon: 'home', shortcut: 'H', action: () => window.location.href = '/' },
+    { id: 'nav-agent', title: 'AI Security Agent Mission Control', category: 'Navigation', icon: 'smart_toy', shortcut: 'A', action: () => window.location.href = '/agent' },
+    { id: 'nav-graph', title: 'Constellation Physics Threat Graph', category: 'Navigation', icon: 'hub', shortcut: 'G', action: () => window.location.href = '/graph' },
+    { id: 'nav-web3', title: 'Web3 Provenance & Ledger Proof Tab', category: 'Navigation', icon: 'token', shortcut: 'W', action: () => { if (typeof switchBentoTab === 'function') switchBentoTab('web3'); else window.location.href = '/?tab=web3'; } },
     { id: 'toggle-audio', title: 'Toggle Sonic Audio Synthesizer', category: 'Settings', icon: 'volume_up', shortcut: 'M', action: () => AegisAudio.toggleMute() }
   ];
 

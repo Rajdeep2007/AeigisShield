@@ -59,64 +59,40 @@
   </div>
 
   <!-- TOP NAVIGATION BAR -->
-  <header class="h-20 bg-white/85 dark:bg-[#111622]/90 backdrop-blur-xl border-b border-slate-200/80 dark:border-white/10 px-5 sm:px-8 flex items-center justify-between sticky top-0 z-30 shadow-sm">
-    <div class="flex items-center gap-6">
-      <a href="/" class="flex items-center gap-3 group">
-        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-sky-400 via-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/25 text-white group-hover:scale-105 transition-transform">
-          <span class="material-symbols-outlined text-2xl material-symbols-fill">shield</span>
+  <header class="h-16 bg-white/90 dark:bg-[#0b0f19]/90 backdrop-blur-xl border-b border-slate-200/80 dark:border-white/10 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-sm w-full">
+    <div class="flex items-center gap-3">
+      <a href="/" class="flex items-center gap-2.5 group">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-500 via-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20 text-white group-hover:scale-105 transition-transform">
+          <span class="material-symbols-outlined text-xl material-symbols-fill">shield</span>
         </div>
-        <div class="flex flex-col">
-          <span class="font-extrabold text-base tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-            AegisTrust
-            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 font-bold border border-indigo-500/30">AGENTIC v3.0</span>
-          </span>
-          <span class="text-xs text-slate-500 dark:text-slate-400">Autonomous Cyber Agent & Browser Shield</span>
+        <div class="flex items-center gap-2">
+          <span class="font-black text-base tracking-tight text-slate-900 dark:text-white">AegisShield</span>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 font-bold border border-indigo-500/30">AGENTIC v3.0</span>
         </div>
       </a>
 
-      <!-- Horizontal Navigation Links -->
-      <nav class="hidden lg:flex items-center gap-1.5 ml-4">
-        <a href="/" class="flex items-center gap-2 px-3.5 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 font-semibold text-xs transition-all">
-          <span class="material-symbols-outlined text-base">troubleshoot</span>
-          <span>Scanner & Triage</span>
-        </a>
-        <a href="/agent" class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 font-bold text-xs border border-indigo-500/30 shadow-sm transition-all">
-          <span class="material-symbols-outlined text-base">smart_toy</span>
-          <span>AI Security Agent</span>
-        </a>
-        <a href="/redirects" class="flex items-center gap-2 px-3.5 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 font-semibold text-xs transition-all">
-          <span class="material-symbols-outlined text-base">alt_route</span>
-          <span>URL & Redirects</span>
-        </a>
-        <a href="/tls" class="flex items-center gap-2 px-3.5 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 font-semibold text-xs transition-all">
-          <span class="material-symbols-outlined text-base">verified_user</span>
-          <span>TLS & Distrusted CAs</span>
-        </a>
-        <a href="/web3" class="flex items-center gap-2 px-3.5 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 font-semibold text-xs transition-all">
-          <span class="material-symbols-outlined text-base">token</span>
-          <span>Web3 Registry</span>
-        </a>
-        <a href="/sandbox" class="flex items-center gap-2 px-3.5 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 font-semibold text-xs transition-all">
-          <span class="material-symbols-outlined text-base">science</span>
-          <span>Test Bench (3+3)</span>
-        </a>
-      </nav>
+      <!-- Quick Back to Command Center -->
+      <a href="/" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 transition-all">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>
+        <span>Command Center</span>
+      </a>
+
+      <!-- Active Mode Indicator -->
+      <div class="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold text-xs border border-indigo-500/20">
+        <span class="material-symbols-outlined text-sm">smart_toy</span>
+        <span>AI Security Agent</span>
+      </div>
     </div>
 
-    <div class="flex items-center gap-3">
-      <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold">
-        <span class="w-2 h-2 rounded-full bg-emerald-500 agent-pulse"></span>
-        <span>Extension Blocklist: <strong id="nav-blocklist-count">0</strong> Domains</span>
+    <div class="flex items-center gap-2 sm:gap-3">
+      <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span class="hidden sm:inline">Blocklist:</span> <strong id="nav-blocklist-count">3</strong> <span class="hidden sm:inline">Domains</span>
       </div>
 
-      <button onclick="toggleTheme()" class="p-2.5 rounded-2xl bg-white dark:bg-white/10 border border-slate-200 dark:border-white/15 text-slate-700 dark:text-amber-300 hover:scale-105 shadow-sm transition-all" title="Toggle Light / Dark Theme">
-        <span id="theme-icon" class="material-symbols-outlined text-xl">dark_mode</span>
+      <button onclick="toggleTheme()" class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-600 dark:text-slate-300 transition-all" title="Toggle Dark/Light Mode">
+        <span id="theme-icon" class="material-symbols-outlined text-base">light_mode</span>
       </button>
-
-      <a href="/consumer" class="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-md transition-all">
-        <span class="material-symbols-outlined text-base">person</span>
-        <span class="hidden sm:inline">Consumer Portal</span>
-      </a>
     </div>
   </header>
 

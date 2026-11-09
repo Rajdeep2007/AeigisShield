@@ -45,7 +45,7 @@ except ImportError:
 from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 
 from app.models.schemas import (
     InvestigationRequest,
@@ -114,10 +114,7 @@ def serve_dashboard():
 
 @app.get("/consumer")
 def serve_consumer():
-    consumer_file = os.path.join(static_dir, "consumer.html")
-    if os.path.exists(consumer_file):
-        return FileResponse(consumer_file)
-    return FileResponse(os.path.join(static_dir, "index.html"))
+    return RedirectResponse(url="/?mode=consumer")
 
 
 @app.get("/agent")
@@ -130,30 +127,24 @@ def serve_agent():
 
 @app.get("/sandbox")
 def serve_sandbox():
-    sandbox_file = os.path.join(static_dir, "sandbox.html")
-    if os.path.exists(sandbox_file):
-        return FileResponse(sandbox_file)
-    return FileResponse(os.path.join(static_dir, "index.html"))
+    return RedirectResponse(url="/")
 
 
 @app.get("/findings")
 @app.get("/intel")
 def serve_findings():
-    f = os.path.join(static_dir, "findings.html")
-    return FileResponse(f) if os.path.exists(f) else FileResponse(os.path.join(static_dir, "index.html"))
+    return RedirectResponse(url="/?tab=findings")
 
 
 @app.get("/redirects")
 @app.get("/url-analysis")
 def serve_redirects():
-    f = os.path.join(static_dir, "redirects.html")
-    return FileResponse(f) if os.path.exists(f) else FileResponse(os.path.join(static_dir, "index.html"))
+    return RedirectResponse(url="/?tab=redirects")
 
 
 @app.get("/tls")
 def serve_tls():
-    f = os.path.join(static_dir, "tls.html")
-    return FileResponse(f) if os.path.exists(f) else FileResponse(os.path.join(static_dir, "index.html"))
+    return RedirectResponse(url="/?tab=tls")
 
 
 @app.get("/graph")
@@ -164,8 +155,7 @@ def serve_graph():
 
 @app.get("/web3")
 def serve_web3():
-    f = os.path.join(static_dir, "web3.html")
-    return FileResponse(f) if os.path.exists(f) else FileResponse(os.path.join(static_dir, "index.html"))
+    return RedirectResponse(url="/?tab=web3")
 
 
 @app.get("/favicon.ico", include_in_schema=False)
