@@ -30,6 +30,7 @@ from app.modules.tls_analyzer import TLSAnalyzer
 from app.modules.security_headers import SecurityHeadersAnalyzer
 from app.modules.message_analyzer import MessageAnalyzer
 from app.modules.correlation_engine import CorrelationEngine
+from app.modules.containment_compiler import ContainmentCompiler
 from app.services.scoring_engine import ScoringEngine
 from app.services.explainer_service import ExplainerService
 from app.services.web3_service import Web3RegistryService
@@ -424,6 +425,19 @@ class AegisAgentService:
             report_dict = inv_response.model_dump()
             onchain_receipt = self.web3_service.submit_report(report_dict)
             inv_response.onchain_registry_status = f"Auto-Anchored (Block #{onchain_receipt['block_number']})"
+            containment_pkg = ContainmentCompiler.compile(
+                target=target_label,
+                risk_classification=classification.value,
+                risk_score=score,
+                resolved_ip=redirect_hops[0].resolved_ip if redirect_hops else None,
+                cert_sha256=tls_report.fingerprint_sha256 if tls_report else None,
+                findings=all_findings,
+                report_hash_keccak256=report_hash
+            )
+            inv_response.containment_package = containment_pkg
+            auto_actions.append(
+                f"Compiled Active Containment Bundle (Cloudflare WAF, Snort/Suricata, Pi-hole RPZ, STIX 2.1, Legal Dossier)."
+            )
             auto_actions.append(
                 f"Auto-anchored RFC 8785 Keccak-256 commitment ({report_hash[:18]}...) to ReportRegistry.sol in Block #{onchain_receipt['block_number']}."
             )

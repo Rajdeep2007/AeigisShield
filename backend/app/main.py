@@ -60,7 +60,13 @@ from app.models.schemas import (
     AgentInvestigateRequest,
     AgentInvestigateResponse,
     WatchdogScanRequest,
+    VisualAnalysisRequest,
+    VisualAnalysisResult,
+    ContainmentPackage,
+    ContainmentCompileRequest,
 )
+from app.modules.visual_analyzer import VisualAnalyzer
+from app.modules.containment_compiler import ContainmentCompiler
 from app.modules.url_analyzer import URLAnalyzer
 from app.modules.redirect_tracer import RedirectTracer
 from app.modules.tls_analyzer import TLSAnalyzer
@@ -80,7 +86,7 @@ from app.core.canonical_hasher import (
 app = FastAPI(
     title="AegisTrust Security Intelligence API",
     description="Evidence-grounded cybersecurity analysis, AI scam detection, Autonomous Security Agent, and Web3 verifiable reporting.",
-    version="2.6.0"
+    version="3.0.0"
 )
 
 # Enable CORS for Next.js / browser clients & Chrome/Edge extension
@@ -184,7 +190,7 @@ agent_service = AegisAgentService(
 @app.get("/health")
 @app.get("/api/v1/health")
 def health():
-    return {"status": "healthy", "service": "AegisTrust", "version": "2.6.0"}
+    return {"status": "healthy", "service": "AegisTrust", "version": "3.0.0"}
 
 
 @app.get("/api/v1/distrusted-cas")
@@ -315,6 +321,18 @@ def investigate_url(req: InvestigationRequest):
     report_hash = compute_report_hash(temp_payload)
     indicator_hash = compute_indicator_hash(meta["hostname"])
 
+    containment_pkg = None
+    if score >= 60 or classification.value in ("High Risk", "Confirmed Malicious"):
+        containment_pkg = ContainmentCompiler.compile(
+            target=meta["hostname"],
+            risk_classification=classification.value,
+            risk_score=score,
+            resolved_ip=resolved_ip,
+            cert_sha256=cert_fp,
+            findings=all_findings,
+            report_hash_keccak256=report_hash
+        )
+
     return InvestigationResponse(
         submission_id=submission_id,
         target=meta["hostname"],
@@ -334,7 +352,8 @@ def investigate_url(req: InvestigationRequest):
         checks_status=checks_status,
         report_hash_keccak256=report_hash,
         salted_indicator_hash=indicator_hash,
-        onchain_registry_status="Unregistered"
+        onchain_registry_status="Unregistered",
+        containment_package=containment_pkg
     )
 
 
@@ -541,6 +560,57 @@ def validate_web3_report(req: Web3ValidateRequest):
 @app.post("/api/v1/web3/dispute")
 def dispute_web3_report(req: Web3DisputeRequest):
     return web3_service.dispute_report(req.report_hash, req.reason)
+
+
+
+@app.post("/api/v1/investigate/visual", response_model=VisualAnalysisResult)
+@app.post("/api/investigate/visual", response_model=VisualAnalysisResult)
+def investigate_visual(req: VisualAnalysisRequest):
+    import base64
+    if not req.image_base64:
+        raise HTTPException(status_code=400, detail="image_base64 is required")
+
+    raw_b64 = req.image_base64
+    if "," in raw_b64:
+        raw_b64 = raw_b64.split(",", 1)[1]
+
+    try:
+        img_bytes = base64.b64decode(raw_b64)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Invalid base64 image data: {str(e)}")
+
+    apex = req.apex_domain or ""
+    if not apex and req.target_url:
+        _, meta = url_analyzer.analyze(req.target_url)
+        apex = meta.get("domain", meta.get("hostname", ""))
+
+    return VisualAnalyzer.analyze_image_bytes(
+        image_bytes=img_bytes,
+        target_url=req.target_url or "",
+        apex_domain=apex
+    )
+
+
+@app.post("/api/v1/containment/compile", response_model=ContainmentPackage)
+@app.post("/api/containment/compile", response_model=ContainmentPackage)
+def compile_containment(req: ContainmentCompileRequest):
+    finding_objs = []
+    if req.findings:
+        for f in req.findings:
+            if isinstance(f, dict):
+                finding_objs.append(Finding(**f))
+            elif isinstance(f, Finding):
+                finding_objs.append(f)
+
+    return ContainmentCompiler.compile(
+        target=req.target,
+        risk_classification=req.risk_classification or "High Risk",
+        risk_score=req.risk_score or 75,
+        resolved_ip=req.resolved_ip,
+        cert_sha256=req.cert_sha256,
+        findings=finding_objs,
+        report_hash_keccak256=req.report_hash_keccak256
+    )
 
 
 if __name__ == "__main__":

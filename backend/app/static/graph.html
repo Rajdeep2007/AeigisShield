@@ -156,7 +156,7 @@
 
             AegisTrust
 
-            <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-400 border border-sky-500/30">v2.6</span>
+            <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-400 border border-sky-500/30">v3.0</span>
 
           </span>
 
@@ -484,84 +484,31 @@
 
 
 
-        <div class="w-full h-[450px] rounded-xl bg-noir-950 border border-noir-border relative flex items-center justify-center p-4 overflow-hidden">
+        <!-- Graph HUD Controls & Live Search -->
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-noir-950/80 p-3 rounded-xl border border-noir-border text-xs font-mono">
+          <div class="flex items-center gap-2 flex-1 min-w-[240px]">
+            <span class="material-symbols-outlined text-sky-400 text-sm">search</span>
+            <input id="graph-search-input" type="text" placeholder="Pivot on domain, IP, or hash (e.g. sbi-kyc-verify-portal.top)..." class="w-full bg-transparent border-none outline-none text-white text-xs placeholder:text-slate-500 font-mono"/>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="graph-pivot-btn" class="px-3 py-1.5 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 font-bold border border-sky-500/40 transition-all flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-xs">radar</span> Pivot Graph
+            </button>
+            <button id="graph-reset-btn" class="px-3 py-1.5 rounded-lg bg-noir-850 hover:bg-noir-800 text-slate-300 border border-noir-border transition-all">
+              Reset Force
+            </button>
+            <button id="graph-export-containment-btn" class="px-3 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold border border-rose-500/40 transition-all flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-xs">security</span> Export Containment
+            </button>
+          </div>
+        </div>
 
-          <svg class="w-full h-full" viewBox="0 0 800 380">
-
-            <!-- Connecting Edges -->
-
-            <line x1="400" y1="190" x2="200" y2="90" stroke="#38bdf8" stroke-width="2" stroke-dasharray="6 4" class="animate-pulse"/>
-
-            <line x1="400" y1="190" x2="600" y2="90" stroke="#f59e0b" stroke-width="2"/>
-
-            <line x1="400" y1="190" x2="240" y2="290" stroke="#f43f5e" stroke-width="2"/>
-
-            <line x1="400" y1="190" x2="560" y2="290" stroke="#c084fc" stroke-width="2"/>
-
-            <line x1="200" y1="90" x2="100" y2="190" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4 4"/>
-
-
-
-            <!-- Center Target Node -->
-
-            <circle cx="400" cy="190" r="40" fill="#161d2f" stroke="#38bdf8" stroke-width="4"/>
-
-            <text x="400" y="186" text-anchor="middle" fill="#ffffff" font-size="11" font-family="JetBrains Mono" font-weight="bold">TARGET HOST</text>
-
-            <text id="graph-node-target" x="400" y="202" text-anchor="middle" fill="#38bdf8" font-size="10" font-family="JetBrains Mono">paypa1-update.xyz</text>
-
-
-
-            <!-- Node 1: Bulletproof IP -->
-
-            <circle cx="200" cy="90" r="32" fill="#0f1422" stroke="#38bdf8" stroke-width="2"/>
-
-            <text x="200" y="86" text-anchor="middle" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">HOST IP</text>
-
-            <text x="200" y="100" text-anchor="middle" fill="#38bdf8" font-size="9" font-family="JetBrains Mono">194.26.29.112</text>
-
-
-
-            <!-- Node 2: Certificate Fingerprint Cluster -->
-
-            <circle cx="600" cy="90" r="32" fill="#0f1422" stroke="#f59e0b" stroke-width="2"/>
-
-            <text x="600" y="86" text-anchor="middle" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">CERT CA</text>
-
-            <text x="600" y="100" text-anchor="middle" fill="#f59e0b" font-size="9" font-family="JetBrains Mono">eMudhra #1898124</text>
-
-
-
-            <!-- Node 3: Autonomous System (ASN) -->
-
-            <circle cx="240" cy="290" r="32" fill="#0f1422" stroke="#f43f5e" stroke-width="2"/>
-
-            <text x="240" y="286" text-anchor="middle" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">ROUTING ASN</text>
-
-            <text x="240" y="300" text-anchor="middle" fill="#f43f5e" font-size="9" font-family="JetBrains Mono">AS44050</text>
-
-
-
-            <!-- Node 4: Mule Payment Handle -->
-
-            <circle cx="560" cy="290" r="32" fill="#0f1422" stroke="#c084fc" stroke-width="2"/>
-
-            <text x="560" y="286" text-anchor="middle" fill="#94a3b8" font-size="9" font-family="JetBrains Mono">MULE UPI</text>
-
-            <text x="560" y="300" text-anchor="middle" fill="#c084fc" font-size="9" font-family="JetBrains Mono">sbihelp@okaxis</text>
-
-
-
-            <!-- Secondary Sub-node: Bitly shortlink -->
-
-            <circle cx="100" cy="190" r="24" fill="#0f1422" stroke="#38bdf8" stroke-width="1.5"/>
-
-            <text x="100" y="188" text-anchor="middle" fill="#94a3b8" font-size="8" font-family="JetBrains Mono">SHORTLINK</text>
-
-            <text x="100" y="200" text-anchor="middle" fill="#38bdf8" font-size="8" font-family="JetBrains Mono">bit.ly/pay</text>
-
-          </svg>
-
+        <div class="w-full h-[520px] rounded-xl bg-noir-950 border border-noir-border relative flex items-center justify-center overflow-hidden shadow-2xl">
+          <canvas id="constellation-canvas" class="w-full h-full block cursor-grab active:cursor-grabbing"></canvas>
+          <div id="graph-tooltip" class="absolute pointer-events-none hidden px-3.5 py-2.5 rounded-xl bg-noir-900/95 border border-sky-500/40 text-xs font-mono shadow-2xl text-white backdrop-blur-md z-20"></div>
+          <div class="absolute bottom-3 left-4 text-[10px] font-mono text-slate-500 pointer-events-none">
+            ⚡ Drag nodes to reposition • Hover to inspect laser links • Physics simulation running
+          </div>
         </div>
 
 
@@ -636,20 +583,345 @@
 
 
 
-    document.addEventListener('DOMContentLoaded', () => {
 
-      const report = getStoredReport();
+  <script>
+    (function() {
+      const canvas = document.getElementById('constellation-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const tooltip = document.getElementById('graph-tooltip');
 
-      const target = (report && report.target) ? report.target : "paypa1-account-update.xyz";
+      let width = 0, height = 0;
+      let dpr = window.devicePixelRatio || 1;
 
-      document.getElementById('page-target-display').textContent = target;
+      function resize() {
+        width = canvas.parentElement.clientWidth;
+        height = canvas.parentElement.clientHeight;
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        ctx.scale(dpr, dpr);
+      }
+      window.addEventListener('resize', resize);
+      resize();
 
-      document.getElementById('graph-node-target').textContent = target;
+      // Ambient background particles
+      const bgParticles = Array.from({ length: 45 }, () => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        r: Math.random() * 1.5 + 0.5,
+        alpha: Math.random() * 0.5 + 0.2
+      }));
 
-    });
+      // Entity Graph Nodes
+      let nodes = [];
+      let edges = [];
+      let draggedNode = null;
+      let hoveredNode = null;
+      let photonProgress = 0;
+
+      function buildGraphFromData(target, clusterData) {
+        const cx = width / 2;
+        const cy = height / 2;
+
+        nodes = [
+          { id: 'target', label: target, type: 'TARGET', color: '#f43f5e', r: 38, x: cx, y: cy, vx: 0, vy: 0, fx: cx, fy: cy, detail: 'Primary Investigated Host' }
+        ];
+
+        edges = [];
+
+        // Linked entities
+        const ip = (clusterData && clusterData.ip) ? clusterData.ip : '194.26.29.112';
+        const cert = (clusterData && clusterData.cert_fp) ? clusterData.cert_fp.slice(0, 16) : '3f8a9e01bc24d85a...';
+        const asn = (clusterData && clusterData.asn) ? clusterData.asn : 'AS44050';
+        const mule = (clusterData && clusterData.mule) ? clusterData.mule : 'sbihelpdesk99@okaxis';
+
+        const entityConfigs = [
+          { id: 'ip', label: ip, type: 'HOST IP', color: '#38bdf8', r: 28, dx: -180, dy: -110, detail: 'Bulletproof Hosting IP (42 Sibling Phish)' },
+          { id: 'cert', label: cert, type: 'CERT CA', color: '#f59e0b', r: 28, dx: 180, dy: -110, detail: 'Distrusted CA Intermediate Fingerprint' },
+          { id: 'asn', label: asn, type: 'ROUTING ASN', color: '#f43f5e', r: 26, dx: -190, dy: 110, detail: 'High-Abuse Autonomous System Network' },
+          { id: 'mule', label: mule, type: 'MULE VPA', color: '#c084fc', r: 28, dx: 190, dy: 110, detail: 'Syndicate Financial Mule Extraction Node' },
+          { id: 'sub', label: 'bit.ly/pay-sbi', type: 'REDIRECT', color: '#34d399', r: 22, dx: -280, dy: -30, detail: 'Evasion Redirect Gateway' }
+        ];
+
+        entityConfigs.forEach(ec => {
+          const n = {
+            id: ec.id,
+            label: ec.label,
+            type: ec.type,
+            color: ec.color,
+            r: ec.r,
+            x: cx + ec.dx + (Math.random() - 0.5) * 30,
+            y: cy + ec.dy + (Math.random() - 0.5) * 30,
+            vx: 0,
+            vy: 0,
+            detail: ec.detail
+          };
+          nodes.push(n);
+          edges.push({ source: nodes[0], target: n, color: ec.color });
+        });
+
+        // Add edge between IP and shortlink
+        edges.push({ source: nodes[1], target: nodes[5], color: '#38bdf8' });
+      }
+
+      // Physics loop
+      function updatePhysics() {
+        photonProgress = (photonProgress + 0.015) % 1;
+
+        // Update ambient particles
+        bgParticles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < 0) p.x = width;
+          if (p.x > width) p.x = 0;
+          if (p.y < 0) p.y = height;
+          if (p.y > height) p.y = 0;
+        });
+
+        // Spring force & Coulomb repulsion
+        const k = 0.03; // spring
+        const rep = 8000; // repulsion
+
+        for (let i = 0; i < nodes.length; i++) {
+          const n1 = nodes[i];
+          if (n1 === draggedNode) continue;
+
+          // Repulsion
+          for (let j = i + 1; j < nodes.length; j++) {
+            const n2 = nodes[j];
+            const dx = n2.x - n1.x;
+            const dy = n2.y - n1.y;
+            const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+            if (dist < 400) {
+              const force = rep / (dist * dist);
+              const fx = (dx / dist) * force;
+              const fy = (dy / dist) * force;
+              n1.vx -= fx;
+              n1.vy -= fy;
+              n2.vx += fx;
+              n2.vy += fy;
+            }
+          }
+
+          // Damping & center pull
+          n1.vx *= 0.85;
+          n1.vy *= 0.85;
+          n1.x += n1.vx;
+          n1.y += n1.vy;
+        }
+
+        // Springs
+        edges.forEach(e => {
+          const dx = e.target.x - e.source.x;
+          const dy = e.target.y - e.source.y;
+          const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+          const targetDist = 170;
+          const delta = dist - targetDist;
+          const fx = (dx / dist) * delta * k;
+          const fy = (dy / dist) * delta * k;
+
+          if (e.source !== draggedNode) {
+            e.source.vx += fx;
+            e.source.vy += fy;
+          }
+          if (e.target !== draggedNode) {
+            e.target.vx -= fx;
+            e.target.vy -= fy;
+          }
+        });
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, width, height);
+
+        // Draw ambient particles
+        bgParticles.forEach(p => {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(56, 189, 248, ${p.alpha * 0.4})`;
+          ctx.fill();
+        });
+
+        // Draw edges & glowing laser beams
+        edges.forEach(e => {
+          const isHovered = hoveredNode && (hoveredNode === e.source || hoveredNode === e.target);
+          ctx.beginPath();
+          ctx.moveTo(e.source.x, e.source.y);
+          ctx.lineTo(e.target.x, e.target.y);
+          ctx.strokeStyle = isHovered ? e.color : 'rgba(255, 255, 255, 0.12)';
+          ctx.lineWidth = isHovered ? 3 : 1.5;
+          if (!isHovered) ctx.setLineDash([6, 4]);
+          else ctx.setLineDash([]);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          // Draw energy photon particle travelling along edge
+          const px = e.source.x + (e.target.x - e.source.x) * photonProgress;
+          const py = e.source.y + (e.target.y - e.source.y) * photonProgress;
+          ctx.beginPath();
+          ctx.arc(px, py, isHovered ? 4 : 2.5, 0, Math.PI * 2);
+          ctx.fillStyle = isHovered ? '#ffffff' : e.color;
+          ctx.shadowColor = e.color;
+          ctx.shadowBlur = 10;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        });
+
+        // Draw nodes
+        nodes.forEach(n => {
+          const isHovered = hoveredNode === n;
+          const r = n.r * (isHovered ? 1.15 : 1);
+
+          // Glowing aura for central target
+          if (n.id === 'target') {
+            const pulse = Math.sin(Date.now() / 200) * 8;
+            ctx.beginPath();
+            ctx.arc(n.x, n.y, r + 14 + pulse, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(244, 63, 94, 0.12)';
+            ctx.fill();
+          }
+
+          // Node body
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
+          ctx.fillStyle = '#0f1422';
+          ctx.fill();
+
+          ctx.lineWidth = isHovered ? 3.5 : 2.5;
+          ctx.strokeStyle = n.color;
+          ctx.shadowColor = n.color;
+          ctx.shadowBlur = isHovered ? 20 : 8;
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+
+          // Type Tag
+          ctx.font = '700 9px "JetBrains Mono", monospace';
+          ctx.fillStyle = isHovered ? '#ffffff' : '#94a3b8';
+          ctx.textAlign = 'center';
+          ctx.fillText(n.type, n.x, n.y - (n.id === 'target' ? 6 : 4));
+
+          // Label text
+          ctx.font = `${n.id === 'target' ? '700 11px' : '500 9px'} "JetBrains Mono", monospace`;
+          ctx.fillStyle = n.color;
+          const truncated = n.label.length > 15 ? n.label.slice(0, 13) + '..' : n.label;
+          ctx.fillText(truncated, n.x, n.y + (n.id === 'target' ? 12 : 9));
+        });
+
+        updatePhysics();
+        requestAnimationFrame(draw);
+      }
+
+      // Mouse drag handlers
+      canvas.onmousedown = (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+
+        for (const n of nodes) {
+          const dx = n.x - mx;
+          const dy = n.y - my;
+          if (dx * dx + dy * dy < n.r * n.r) {
+            draggedNode = n;
+            if (window.AegisAudio) window.AegisAudio.playClick();
+            break;
+          }
+        }
+      };
+
+      window.addEventListener('mousemove', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+
+        if (draggedNode) {
+          draggedNode.x = mx;
+          draggedNode.y = my;
+          draggedNode.vx = 0;
+          draggedNode.vy = 0;
+        } else {
+          // Hover check
+          let found = null;
+          for (const n of nodes) {
+            const dx = n.x - mx;
+            const dy = n.y - my;
+            if (dx * dx + dy * dy < (n.r + 5) * (n.r + 5)) {
+              found = n;
+              break;
+            }
+          }
+          hoveredNode = found;
+          if (found) {
+            tooltip.style.display = 'block';
+            tooltip.style.left = (mx + 15) + 'px';
+            tooltip.style.top = (my - 15) + 'px';
+            tooltip.innerHTML = `
+              <div style="font-weight: 800; color: ${found.color};">${found.type}: ${found.label}</div>
+              <div style="color: #94a3b8; font-size: 11px; margin-top: 2px;">${found.detail}</div>
+            `;
+          } else {
+            tooltip.style.display = 'none';
+          }
+        }
+      });
+
+      window.addEventListener('mouseup', () => {
+        draggedNode = null;
+      });
+
+      // Reset force button
+      document.getElementById('graph-reset-btn').onclick = () => {
+        const target = document.getElementById('page-target-display').textContent || 'paypa1-account-update.xyz';
+        buildGraphFromData(target);
+        if (window.AegisAudio) window.AegisAudio.playChime();
+      };
+
+      // Pivot search button
+      document.getElementById('graph-pivot-btn').onclick = async () => {
+        const query = document.getElementById('graph-search-input').value.trim();
+        if (!query) return;
+        document.getElementById('page-target-display').textContent = query;
+        if (window.AegisAudio) window.AegisAudio.playScanChirp();
+        try {
+          const res = await fetch(`/api/v1/correlations/${encodeURIComponent(query)}`);
+          if (res.ok) {
+            const data = await res.json();
+            buildGraphFromData(query, data);
+          } else {
+            buildGraphFromData(query);
+          }
+        } catch (_) {
+          buildGraphFromData(query);
+        }
+      };
+
+      // Export containment kit
+      document.getElementById('graph-export-containment-btn').onclick = () => {
+        const target = document.getElementById('page-target-display').textContent || 'paypa1-account-update.xyz';
+        if (window.openActiveContainmentModal) {
+          window.openActiveContainmentModal(target, 85, 'Confirmed Malicious');
+        }
+      };
+
+      // Initial Graph Build
+      const stored = localStorage.getItem('aegis_current_report');
+      let initialTarget = 'paypa1-account-update.xyz';
+      if (stored) {
+        try {
+          const r = JSON.parse(stored);
+          if (r.target) initialTarget = r.target;
+        } catch (_) {}
+      }
+      buildGraphFromData(initialTarget);
+      requestAnimationFrame(draw);
+    })();
+  </script>
+
 
   </script>
 
+  <script src="/static/aegis-ux.js"></script>
 </body>
 
 </html>

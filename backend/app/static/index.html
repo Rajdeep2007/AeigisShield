@@ -54,7 +54,7 @@
         <div class="flex flex-col">
           <span class="font-extrabold text-base tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
             AegisTrust
-            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-600 dark:text-sky-400 font-bold border border-sky-500/30">v2.6</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-600 dark:text-sky-400 font-bold border border-sky-500/30">v3.0</span>
           </span>
           <span class="text-xs text-slate-500 dark:text-slate-400">AI Cyber Intelligence & Web3 Registry</span>
         </div>
@@ -404,9 +404,17 @@
               <span class="material-symbols-outlined text-sm">task_alt</span>
               <span>Verify Web3 Hash</span>
             </button>
-            <button onclick="exportStixReport()" class="px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs shadow-md transition-all flex items-center gap-1.5">
+            <button onclick="window.openActiveContainmentModal ? window.openActiveContainmentModal(currentReport ? currentReport.target : 'paypa1-account-update.xyz', currentReport ? currentReport.risk_score : 75, currentReport ? currentReport.risk_classification : 'High Risk') : exportStixReport()" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-sm">security</span>
+              <span>Active Containment Kit</span>
+            </button>
+            <button onclick="window.openVisualDetonatorModal ? window.openVisualDetonatorModal() : null" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-sm">image_search</span>
+              <span>Aegis Vision</span>
+            </button>
+            <button onclick="exportStixReport()" class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-white/10 hover:bg-slate-300 dark:hover:bg-white/15 text-slate-800 dark:text-white font-bold text-xs shadow-sm transition-all flex items-center gap-1.5">
               <span class="material-symbols-outlined text-sm">download</span>
-              <span>Export STIX 2.1</span>
+              <span>STIX 2.1</span>
             </button>
           </div>
         </div>
@@ -590,6 +598,7 @@
         alert('Please enter a target URL or message to investigate.');
         return;
       }
+      if (window.AegisAudio) window.AegisAudio.playScanChirp();
 
       const btnText = document.getElementById('btn-scan-text');
       const btnIcon = document.getElementById('btn-scan-icon');
@@ -629,6 +638,13 @@
 
     function applyScanData(data) {
       currentReport = data;
+      if (window.AegisAudio) {
+        if (data.risk_score >= 60 || data.risk_classification === 'Confirmed Malicious' || data.risk_classification === 'High Risk') {
+          window.AegisAudio.playThreatBass();
+        } else {
+          window.AegisAudio.playChime();
+        }
+      }
       try {
         localStorage.setItem('aegis_current_report', JSON.stringify(data));
         localStorage.setItem('aegis_current_target', data.target);
@@ -772,5 +788,6 @@
       a.click();
     }
   </script>
+  <script src="/static/aegis-ux.js"></script>
 </body>
 </html>

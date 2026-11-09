@@ -82,6 +82,49 @@ class MessageAnalysis(BaseModel):
     adversarial_note: Optional[str] = None
 
 
+
+class VisualAnalysisRequest(BaseModel):
+    image_base64: Optional[str] = None
+    target_url: Optional[str] = None
+    apex_domain: Optional[str] = None
+
+
+class VisualAnalysisResult(BaseModel):
+    dhash: str
+    phash: str
+    matched_brand: Optional[str] = None
+    hamming_distance: Optional[int] = None
+    similarity_percent: float = 0.0
+    is_visual_spoof: bool = False
+    qr_code_detected: bool = False
+    qr_decoded_url: Optional[str] = None
+    canvas_login_detected: bool = False
+    multimodal_ai_summary: Optional[str] = None
+    findings: List[Finding] = []
+
+
+class ContainmentPackage(BaseModel):
+    target: str
+    timestamp: str
+    risk_classification: str
+    risk_score: int
+    cloudflare_waf_rule: Dict[str, Any]
+    snort_ids_rule: str
+    suricata_rule: str
+    dns_rpz_line: str
+    stix21_bundle: Dict[str, Any]
+    legal_evidence_dossier_markdown: str
+
+
+class ContainmentCompileRequest(BaseModel):
+    target: str
+    risk_classification: Optional[str] = None
+    risk_score: Optional[int] = None
+    resolved_ip: Optional[str] = None
+    cert_sha256: Optional[str] = None
+    findings: Optional[List[Dict[str, Any]]] = None
+    report_hash_keccak256: Optional[str] = None
+
 class InvestigationRequest(BaseModel):
     url: Optional[str] = None
     message: Optional[str] = None
@@ -107,6 +150,8 @@ class InvestigationResponse(BaseModel):
     report_hash_keccak256: str
     salted_indicator_hash: str
     onchain_registry_status: str = "Unregistered"
+    visual_analysis: Optional[VisualAnalysisResult] = None
+    containment_package: Optional[ContainmentPackage] = None
 
 
 class Web3SubmitRequest(BaseModel):

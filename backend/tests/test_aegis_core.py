@@ -247,6 +247,67 @@ def test_ssrf_thread_lock_present():
     assert hasattr(SSRFGuard, "_pinning_lock")
 
 
+
+from app.modules.visual_analyzer import VisualAnalyzer
+from app.modules.containment_compiler import ContainmentCompiler
+
+
+def test_visual_analyzer_dhash_and_phash_deterministic():
+    img_bytes = VisualAnalyzer.create_synthetic_brand_viewport("paypal")
+    from PIL import Image
+    import io
+    img = Image.open(io.BytesIO(img_bytes))
+    dhash = VisualAnalyzer.compute_dhash(img)
+    phash = VisualAnalyzer.compute_phash(img)
+    assert len(dhash) == 16
+    assert len(phash) == 16
+    # Same hash has distance 0
+    assert VisualAnalyzer.hamming_distance(phash, phash) == 0
+
+
+def test_visual_analyzer_detects_paypal_clone_on_unauthorized_domain():
+    fake_png = VisualAnalyzer.create_synthetic_brand_viewport("paypal")
+    res = VisualAnalyzer.analyze_image_bytes(
+        fake_png,
+        target_url="https://paypa1-account-update.xyz/login",
+        apex_domain="paypa1-account-update.xyz"
+    )
+    assert res.matched_brand == "PayPal"
+    assert res.is_visual_spoof is True
+    assert any(f.id == "F-VISUAL-BRAND-SPOOF" for f in res.findings)
+
+
+def test_visual_analyzer_authorizes_official_domain():
+    real_png = VisualAnalyzer.create_synthetic_brand_viewport("paypal")
+    res = VisualAnalyzer.analyze_image_bytes(
+        real_png,
+        target_url="https://paypal.com/signin",
+        apex_domain="paypal.com"
+    )
+    assert res.is_visual_spoof is False
+    assert any(f.id == "F-VISUAL-AUTHENTIC-BRAND" for f in res.findings)
+
+
+def test_containment_compiler_generates_all_formats():
+    pkg = ContainmentCompiler.compile(
+        target="fake-sbi-portal.top",
+        risk_classification="High Risk",
+        risk_score=85,
+        resolved_ip="194.26.29.112",
+        cert_sha256="abcd1234efgh5678",
+        findings=[
+            Finding(id="F-TYPO-01", module="lexical", title="SBI Typosquat", severity=Severity.HIGH, weight=30, evidence="Distance 1", source="Lexical")
+        ],
+        report_hash_keccak256="0x1234567890abcdef"
+    )
+    assert pkg.target == "fake-sbi-portal.top"
+    assert 'http.host eq "fake-sbi-portal.top"' in pkg.cloudflare_waf_rule["expression"]
+    assert "AEGIS-THREAT" in pkg.snort_ids_rule
+    assert "fake-sbi-portal.top CNAME ." in pkg.dns_rpz_line
+    assert pkg.stix21_bundle["type"] == "bundle"
+    assert "NATIONAL CYBER CRIME INVESTIGATION EVIDENCE DOSSIER" in pkg.legal_evidence_dossier_markdown
+
+
 if __name__ == "__main__":
     tests = [v for k, v in list(globals().items()) if k.startswith("test_") and callable(v)]
     for t in tests:

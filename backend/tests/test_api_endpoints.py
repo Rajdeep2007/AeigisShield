@@ -38,6 +38,8 @@ from app.main import (
     verify_web3_report,
     validate_web3_report,
     dispute_web3_report,
+    investigate_visual,
+    compile_containment,
 )
 from app.models.schemas import (
     InvestigationRequest,
@@ -47,6 +49,8 @@ from app.models.schemas import (
     Web3VerifyRequest,
     Web3ValidateRequest,
     Web3DisputeRequest,
+    VisualAnalysisRequest,
+    ContainmentCompileRequest,
 )
 
 
@@ -186,6 +190,43 @@ def test_web3_submit_verify_validate_dispute_cycle():
     real_tamper_res = _to_dict(verify_web3_report(Web3VerifyRequest(report_json=real_tamper, simulate_tamper=False)))
     assert real_tamper_res["verified"] is False
     assert real_tamper_res["hashes_match"] is False
+
+
+
+def test_api_investigate_visual_endpoint():
+    import base64
+    from app.modules.visual_analyzer import VisualAnalyzer
+    fake_bytes = VisualAnalyzer.create_synthetic_brand_viewport("paypal")
+    b64_str = base64.b64encode(fake_bytes).decode("utf-8")
+
+    req = VisualAnalysisRequest(
+        image_base64=b64_str,
+        target_url="https://paypa1-account-update.xyz",
+        apex_domain="paypa1-account-update.xyz"
+    )
+    res = _to_dict(investigate_visual(req))
+    assert res["matched_brand"] == "PayPal"
+    assert res["is_visual_spoof"] is True
+
+
+def test_api_containment_compile_endpoint():
+    req = ContainmentCompileRequest(
+        target="malicious-crypto-drainer.xyz",
+        risk_classification="High Risk",
+        risk_score=90,
+        resolved_ip="198.51.100.99"
+    )
+    res = _to_dict(compile_containment(req))
+    assert "malicious-crypto-drainer.xyz" in res["cloudflare_waf_rule"]["expression"]
+    assert "AEGIS-THREAT" in res["snort_ids_rule"]
+    assert res["stix21_bundle"]["type"] == "bundle"
+
+
+def test_api_url_auto_compiles_containment_on_high_risk():
+    inv_res = _to_dict(investigate_url(InvestigationRequest(url="https://paypa1-account-update.xyz")))
+    assert inv_res["risk_score"] >= 60
+    assert inv_res["containment_package"] is not None
+    assert "paypa1-account-update.xyz" in inv_res["containment_package"]["cloudflare_waf_rule"]["expression"]
 
 
 if __name__ == "__main__":

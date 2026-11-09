@@ -142,6 +142,21 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true;
   }
 
+  if (msg.type === "AEGIS_PERMIT2_DRAINER_ALERT" && sender.tab) {
+    const tabId = sender.tab.id;
+    chrome.action.setBadgeText({ tabId, text: "DRAIN" });
+    chrome.action.setBadgeBackgroundColor({ tabId, color: "#ef4444" });
+    chrome.storage.local.set({
+      latest_drainer_alert: {
+        timestamp: new Date().toISOString(),
+        url: msg.url,
+        detail: msg.detail
+      }
+    });
+    sendResponse({ ok: true });
+    return true;
+  }
+
   if (msg.type === "AEGIS_MANUAL_INVESTIGATE") {
     runAgentScan(msg.payload)
       .then((result) => {

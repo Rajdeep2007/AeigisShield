@@ -93,6 +93,42 @@ def test_report_registry_provenance_lifecycle():
     print("ReportRegistry lifecycle and tamper resistance verified.")
 
 
+
+def test_eip712_permit2_typehash_standards():
+    """Verifies standard Uniswap Permit2 and EIP-2612 Permit typehashes."""
+    # Uniswap Permit2 PermitSingle typehash
+    permit_single_sig = "PermitSingle(PermitDetails details,address spender,uint256 sigDeadline)PermitDetails(address token,uint160 amount,uint48 expiration,uint48 nonce)"
+    permit2_typehash = "0x" + _keccak256(permit_single_sig.encode()).hex()
+    assert len(permit2_typehash) == 66
+    
+    # EIP-2612 Permit typehash
+    permit_sig = "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
+    permit_typehash = "0x" + _keccak256(permit_sig.encode()).hex()
+    assert len(permit_typehash) == 66
+
+
+def test_extension_mv3_manifest_and_provider_hook_wiring():
+    """Verifies that extension/manifest.json correctly hooks Web3 provider in MAIN world."""
+    manifest_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "extension", "manifest.json"))
+    with open(manifest_path, "r", encoding="utf-8") as f:
+        manifest = json.load(f)
+    
+    # Must have provider_hook.js in content_scripts running in MAIN world at document_start
+    content_scripts = manifest.get("content_scripts", [])
+    hook_script = next((cs for cs in content_scripts if "provider_hook.js" in cs.get("js", [])), None)
+    assert hook_script is not None, "provider_hook.js not registered in manifest.json content_scripts!"
+    assert hook_script.get("run_at") == "document_start"
+    assert hook_script.get("world") == "MAIN"
+
+    # Verify provider_hook.js exists and intercepts eth_signTypedData
+    hook_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "extension", "provider_hook.js"))
+    with open(hook_file, "r", encoding="utf-8") as f:
+        hook_code = f.read()
+    assert "eth_signTypedData_v4" in hook_code
+    assert "PermitTransferFrom" in hook_code
+    assert "showPermit2WarningModal" in hook_code
+
+
 if __name__ == "__main__":
     test_solidity_function_selectors()
     test_event_topic_signatures()

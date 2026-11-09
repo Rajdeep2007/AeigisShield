@@ -197,4 +197,15 @@
       showAgentMiniCard(msg.data);
     }
   });
+
+  // Listen for in-page Web3 Permit2 / EIP-712 drainer intercepts from provider_hook.js
+  window.addEventListener("AEGIS_WEB3_DRAINER_DETECTED", (evt) => {
+    try {
+      chrome.runtime.sendMessage({
+        type: "AEGIS_PERMIT2_DRAINER_ALERT",
+        url: window.location.href,
+        detail: evt.detail || {}
+      }).catch(() => {});
+    } catch (_) {}
+  });
 })();
