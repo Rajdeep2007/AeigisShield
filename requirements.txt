@@ -10,6 +10,7 @@ requests>=2.31.0
 tldextract>=5.1.0
 networkx>=3.2.0
 google-genai>=0.1.1
+Pillow>=10.0.0
 
 # Development & Testing
 pytest>=8.1.0
